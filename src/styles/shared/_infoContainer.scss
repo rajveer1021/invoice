@@ -1,0 +1,25 @@
+.InfoContainer {
+  border: 1px solid $field-background;
+  padding-inline: 1rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 21rem;
+  border-radius: 0.25rem;
+  width: 100%;
+
+  .title {
+    font-size: $font-size-base;
+    color: $secondary;
+  }
+  .upIcon {
+    font-size: $font-size-sm !important;
+    font-weight: $font-weight-bold;
+    color: $success;
+  }
+  .downIcon {
+    font-size: $font-size-sm !important;
+    color: $error;
+  }
+}

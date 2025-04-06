@@ -1,0 +1,37 @@
+.fallback-container{
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(#00000098 100%, #000000a2 100%), url('../../assets/images/marketing-bg.png');
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: cover !important;
+    background-attachment: fixed;
+    @media screen and (max-width:600px) {
+        background: linear-gradient(#00000098 100%, #000000a2 100%), url('../../assets/images/marketing-small-bg.png');
+    }
+    
+    .content-box{
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        .error-msg{
+            font-size: $font-size-xxxl;
+            font-weight: bold;
+            text-align: center;
+            color: red;
+            @media screen and (max-width:600px) {
+                font-size: $font-size-xl;
+            }
+        }
+        .error-reason{
+            text-align: center;
+            color: $white;
+            font-size: $font-size-lg;
+            @media screen and (max-width:600px) {
+            font-size: $font-size-base;
+            }
+        }
+    }
+}

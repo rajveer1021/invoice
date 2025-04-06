@@ -1,0 +1,169 @@
+.dialogBox {
+  .MuiDialog-paper {
+    border-radius: 0 0 3.125rem 0 !important;
+    min-width: 40% !important;
+    width: 100%;
+    padding: 1rem 2rem;
+
+    @media (max-width: $sm-breakpoint) {
+      min-width: 95% !important;
+      padding: 0.5rem;
+    }
+  }
+
+  .dialog-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .greet-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+
+      .greet-icon {
+        border-radius: 50%;
+        height: 6rem;
+        width: 6rem;
+
+        @media (max-width: $sm-breakpoint) {
+          height: 5.5rem;
+          width: 5.5rem;
+        }
+
+        .icon {
+          width: 90%;
+          height: 90%;
+          object-fit: contain;
+        }
+      }
+    }
+
+    .dialog-content {
+      .dialog-heading {
+        color: $light-red !important;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+
+        @media (max-width: $sm-breakpoint) {
+          font-size: $font-size-base;
+        }
+      }
+
+      .dialog-subheading {
+        font-size: $font-size-sm;
+        color: $black;
+        text-transform: capitalize;
+
+        @media (max-width: $sm-breakpoint) {
+          font-size: $font-size-sm;
+        }
+      }
+    }
+  }
+
+  .dialogTitle {
+    color: $secondary !important;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+
+    @media (max-width: $sm-breakpoint) {
+      font-size: $font-size-base;
+    }
+  }
+
+  .dialog-discription {
+    font-size: $font-size-sm;
+  }
+}
+
+.cookiesDialogBox {
+  z-index: 9999999999 !important;
+  .MuiDialog-paper {
+    min-width: 70% !important;
+    width: 100%;
+    padding: 1rem 1rem;
+    position: fixed;
+    bottom: 0 !important;
+
+    @media (max-width: $sm-breakpoint) {
+      min-width: 95% !important;
+      max-height: 90% !important;
+    }
+  }
+  .cookiesHeading {
+    color: $primary;
+    font-weight: $font-weight-bold !important;
+    font-size: $font-size-xl;
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-base !important;
+    }
+  }
+  .cookiesInformation {
+    font-size: $font-size-base;
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-xs !important;
+    }
+    .cookiePageLink {
+      color: $primary !important;
+    }
+  }
+  .toggleBtnLable {
+    font-weight: $font-weight-bold !important;
+  }
+  .manageBtn {
+    text-decoration: underline;
+    text-transform: capitalize;
+    color: $primary;
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-sm !important;
+    }
+  }
+  .rejectBtn {
+    border-color: $primary !important;
+    text-transform: capitalize !important;
+    box-shadow: none !important;
+    color: $primary;
+    width: 14.4375rem !important;
+    height: 3rem;
+    @media screen and (max-width: $sm-breakpoint) {
+      height: 2.625rem !important;
+      font-size: $font-size-sm !important;
+      width: 7rem !important;
+    }
+  }
+  .acceptBtn {
+    border-color: $primary !important;
+    text-transform: capitalize;
+    color: $white !important;
+    box-shadow: none !important;
+    background-color: $primary;
+    width: 14.4375rem !important;
+    height: 3rem;
+    &:hover {
+      background-color: $primary !important;
+    }
+    @media screen and (max-width: $sm-breakpoint) {
+      height: 2.625rem !important;
+      font-size: $font-size-sm !important;
+      width: 7rem !important;
+    }
+  }
+  .saveCookiesBtn {
+    border-color: $primary !important;
+    text-transform: capitalize;
+    color: $white !important;
+    box-shadow: none !important;
+    background-color: $primary;
+    width: 14.4375rem !important;
+    height: 3rem;
+    &:hover {
+      background-color: $primary !important;
+    }
+    @media screen and (max-width: $sm-breakpoint) {
+      height: 2.625rem !important;
+      font-size: $font-size-sm !important;
+      width: 9rem !important;
+    }
+  }
+}

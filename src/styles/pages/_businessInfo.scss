@@ -1,0 +1,116 @@
+.busnessinfo{
+  width: 100%;
+  height: calc( 100svh - $header-height );
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+.businessinfo-wrapper {
+  display: flex;
+  justify-content: center;
+
+  .businessinfo-container {
+    width: 59.3% !important;
+
+    @media screen and (max-width: $md-breakpoint) {
+      width: 100% !important;
+    }
+
+    .detail-wrapper {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+
+      .businessdetails-form {
+        width: 100%;
+        background-color: $white;
+        padding: 1.5rem 1.25rem;
+        border-radius: 0.5rem;
+
+        .company_logo_preview {
+          width: 3.75rem;
+          width: 100%;
+          height: 3.75rem;
+          object-fit: contain;
+          border-radius: .25rem;
+          border: 1px solid $field-background;
+        }
+
+        .submitBtnContainer {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+
+          @media screen and (max-width: $sm-breakpoint) {
+            justify-content: center;
+          }
+        }
+      }
+    }
+
+    .businessInfo-stepper-wrapper {
+      .Mui-active svg {
+        color: $primary;
+      }
+
+      .Mui-completed svg {
+        color: $success;
+      }
+    }
+
+    .stepper-body {
+      padding: 1rem;
+    }
+
+    .footer-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .StepperHeaderContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    max-height: 5.625rem;
+    height: 100%;
+    background-color: $white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+
+    .heading {
+      font-size: $font-size-xl;
+      color: $primary;
+      font-weight: $font-weight-medium;
+      border-left: 4px solid $primary;
+      padding-left: 0.5rem;
+
+      @media screen and (max-width: $md-breakpoint) {
+        font-size: $font-size-lg;
+      }
+    }
+
+    .primary-line {
+      width: 5rem;
+      height: 3px;
+      border-radius: 3.125rem;
+      margin-top: 0.5rem;
+    }
+
+    .subHeading {
+      font-size: $font-size-sm;
+      color: $gray;
+
+      @media screen and (max-width: $md-breakpoint) {
+        font-size: $font-size-sm;
+      }
+    }
+  }
+
+ 
+}

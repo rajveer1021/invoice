@@ -1,0 +1,335 @@
+.createInvoice {
+  .createInvoice-container {
+    background-color: #fff;
+    border: 0.125rem solid $field-background;
+
+    .invoiceNumberContainer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem;
+
+      @media screen and (max-width: 600px) {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 0.8rem;
+        margin-top: 0.5rem;
+      }
+
+      .MuiOutlinedInput-root {
+        font-size: 0.875rem !important;
+      }
+
+      .MuiTextField-root {
+        max-width: 14.1875rem !important;
+        width: 100%;
+        border-color: gray !important;
+        font-size: 0.875rem !important;
+
+        @media screen and (max-width: 600px) {
+          width: 100%;
+          max-width: 100% !important;
+        }
+
+        input {
+          padding-top: 11px;
+          padding-bottom: 11px;
+          max-width: 31.25rem !important;
+          font-size: 0.875rem !important;
+        }
+
+        label {
+          top: -6px;
+          font-size: 0.875rem !important;
+        }
+
+        label[data-shrink="true"] {
+          top: 0;
+        }
+      }
+
+      .topHeader {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        .invoice-status {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 6rem;
+          text-transform: capitalize;
+          border-radius: 0.25rem;
+          font-size: $font-size-sm;
+          padding: 0.5rem;
+        }
+
+        .MuiOutlinedInput-root {
+          font-size: 0.875rem !important;
+        }
+
+        .MuiTextField-root {
+          max-width: 21.875rem !important;
+          width: 100%;
+          border-color: gray !important;
+          font-size: 0.875rem !important;
+
+          input {
+            padding-top: 11px;
+            padding-bottom: 11px;
+            max-width: 31.25rem !important;
+            font-size: 0.875rem !important;
+          }
+
+          label {
+            top: -7px;
+            font-size: 0.875rem !important;
+          }
+
+          label[data-shrink="true"] {
+            top: 0;
+          }
+        }
+      }
+    }
+
+    .addressContainer {
+      padding-inline: 1.5rem;
+
+      @media screen and (max-width: $sm-breakpoint) {
+        padding-inline: 0.8rem;
+      }
+    }
+
+    .logoContainer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      width: 100%;
+      flex-direction: column;
+
+      .MuiOutlinedInput-root {
+        padding: 0 0.5rem;
+        padding-right: 1rem;
+        // padding-left: 0.2rem;
+        font-size: 0.875rem !important;
+      }
+
+      .MuiTextField-root {
+        max-width: 21.875rem !important;
+        width: 100%;
+        border-color: gray !important;
+
+        input {
+          max-width: 31.25rem !important;
+          font-size: 0.875rem !important;
+        }
+
+        label {
+          top: -7px;
+          font-size: 0.875rem !important;
+        }
+
+        label[data-shrink="true"] {
+          top: 0;
+        }
+      }
+
+      @media screen and (max-width: $sm-breakpoint) {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+      }
+
+      .dateField {
+        .MuiOutlinedInput-root {
+          padding: 0.1563rem;
+          padding-right: 1rem;
+          // padding-left: 0.2rem;
+          font-size: 0.875rem !important;
+        }
+
+        .MuiTextField-root {
+          max-width: 21.875rem !important;
+          width: 100%;
+          border-color: gray !important;
+
+          input {
+            max-width: 31.25rem !important;
+            font-size: 0.875rem !important;
+          }
+
+          label {
+            top: -7px;
+            font-size: 0.875rem !important;
+          }
+
+          label[data-shrink="true"] {
+            top: 0;
+          }
+        }
+      }
+
+      .logoBox {
+        width: 5rem !important;
+        height: 5rem !important;
+        border: 1px solid $field-background;
+        padding: 0.2rem;
+
+        .logo {
+          height: 100%;
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+
+      .date {
+        font-weight: $font-weight-bold !important;
+
+        @media screen and (max-width: $sm-breakpoint) {
+          margin-top: 1rem;
+        }
+      }
+    }
+
+    .descriptionContainer {
+      background-color: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.1875rem;
+
+      @media screen and (max-width: $md-breakpoint) {
+        height: auto;
+        padding: 0.2rem;
+      }
+    }
+
+    .invoiceContainer {
+      padding: 0;
+
+      @media screen and (max-width: $md-breakpoint) {
+        margin-top: 1rem;
+      }
+
+      .userDetails {
+        .userName {
+          font-size: 0.75rem;
+          color: $gray;
+        }
+
+        .userAddress {
+          font-size: 0.75rem;
+          color: $gray;
+        }
+      }
+
+      .clientDetails {
+        font-size: 0.75rem;
+        color: $gray;
+      }
+
+      .invoiceNumber {
+        font-weight: $font-weight-medium !important;
+      }
+    }
+
+    .clientDetails {
+      font-size: $font-size-sm;
+      color: $gray;
+      padding-top: 0.2rem;
+    }
+
+    .invoiceNumber {
+      font-weight: $font-weight-medium !important;
+    }
+
+    .smallField {
+      .MuiOutlinedInput-root {
+        padding: 0;
+      }
+    }
+
+    .MuiTextField-root {
+      max-width: 21.875rem;
+      width: 100%;
+      border-color: gray !important;
+      font-size: 0.875rem !important;
+
+      input {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        max-width: 31.25rem !important;
+        font-size: 0.8rem !important;
+      }
+
+      label {
+        top: -6px;
+        font-size: 0.875rem !important;
+      }
+
+      label[data-shrink="true"] {
+        top: 0;
+      }
+    }
+  }
+
+  .addItembtn {
+    background-color: $success !important;
+    text-transform: capitalize !important;
+    max-width: 6.9375rem;
+    width: 100%;
+    height: 2rem;
+    font-size: $font-size-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: none !important;
+  }
+}
+
+.amountContainer {
+  max-width: 88%;
+  width: 100%;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+.totalAmountContainer {
+  border-radius: 0.25rem;
+  height: 2rem;
+
+  .flag {
+    height: 100%;
+    padding-inline: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flagAmount {
+    padding-right: 0.8rem;
+  }
+}
+
+
+
+.invoice-footer-logo {
+  max-width: 5rem;
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}

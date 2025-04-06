@@ -1,0 +1,138 @@
+.unregistered-wrapper {
+  background-color: $white !important;
+  min-height: 100svh;
+  height: 100%;
+
+  .side-box {
+    position: relative;
+    height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: $primary;
+
+    @media screen and (max-width: $md-breakpoint) {
+      display: none;
+    }
+
+    .box-image {
+      max-width: 8rem;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .content {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+
+      .label {
+        color: $white;
+        font-size: $font-size-base;
+      }
+    }
+  }
+}
+
+.content-container {
+  position: relative !important;
+  width: 100%;
+  height: 100svh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  .form-details-container {
+    width: 100%;
+    height: calc(100svh - $header-height );
+    margin-top: calc($header-height);
+    padding: 3rem 0;
+    overflow: auto;
+
+    @media screen and (max-width: $sm-breakpoint) {
+      margin: 4rem 0 2rem 0;
+      padding-inline: 1rem;
+
+    }
+
+    .form-container {
+      max-width: 500px;
+      width: 100%;
+      padding-left: 3.75rem;
+
+      @media screen and (max-width: $sm-breakpoint) {
+        padding-left: 0rem !important;
+      }
+    }
+
+    .heading {
+      color: $black;
+      font-size: $font-size-lg;
+      font-weight: bold;
+    }
+
+    .subHeading {
+      color: $gray;
+      font-size: $font-size-sm;
+    }
+
+    .forgot-password-link {
+      width: 100%;
+      text-align: start;
+
+      .link {
+        font-size: $font-size-sm;
+        color: $primary;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+}
+
+.bottom-line {
+  height: 0.625rem;
+  width: 100%;
+  background-color: $primary;
+  position: absolute;
+  bottom: 0;
+}
+
+
+.blurbox-content {
+  max-width: 500px;
+  width: 100%;
+  z-index: 9;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.28);
+  display: block;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  @media screen and (max-width: $sm-breakpoint) {
+    top: 20%;
+  }
+
+  .content {
+    font-weight: bold;
+    color: $white;
+    font-size: $font-size-base;
+    text-align: center;
+  }
+}

@@ -1,0 +1,264 @@
+// Margin Classes
+
+//margin-5px
+
+.mt-5 {
+  margin-top: 0.3125rem !important;
+}
+
+.mr-5 {
+  margin-right: 0.3125rem !important;
+}
+
+.ml-5 {
+  margin-left: 0.3125rem !important;
+}
+
+.mb-5 {
+  margin-bottom: 0.3125rem !important;
+}
+
+// margin-10px
+
+.mr-10 {
+  margin-right: 0.625rem !important;
+}
+
+.ml-10 {
+  margin-left: 0.625rem !important;
+}
+
+.mt-10 {
+  margin-top: 0.625rem !important;
+}
+
+.mb-10 {
+  margin-bottom: 0.625rem !important;
+}
+
+//margin-18px
+
+.mt-18 {
+  margin-top: 1.125rem !important;
+}
+
+.mr-18 {
+  margin-right: 1.125rem !important;
+}
+
+.mb-18 {
+  margin-bottom: 1.125rem !important;
+}
+
+.ml-18 {
+  margin-left: 1.125rem !important;
+}
+
+//margin-30px
+.mt-30 {
+  margin-top: 1.875rem !important;
+}
+
+.mb-30 {
+  margin-bottom: 1.875rem !important;
+}
+
+.mr-30 {
+  margin-right: 1.875rem !important;
+}
+
+.ml-30 {
+  margin-left: 1.875rem !important;
+}
+
+//margin-50px
+
+.mt-50 {
+  margin-top: 3.125rem !important;
+}
+
+.mb-50 {
+  margin-bottom: 3.125rem !important;
+}
+
+.ml-50 {
+  margin-left: 3.125rem !important;
+}
+
+.mr-50 {
+  margin-right: 3.125rem !important;
+}
+
+//margin-60px
+
+.mt-60 {
+  margin-top: 3.75rem !important;
+}
+
+//margin-80px
+
+.mt-80 {
+  margin-top: 5rem !important;
+}
+
+.mb-80 {
+  margin-bottom: 5rem !important;
+}
+
+.ml-80 {
+  margin-left: 5rem !important;
+}
+
+.mr-80 {
+  margin-right: 5rem !important;
+}
+
+//center
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+//font-size
+
+.font-12 {
+  font-size: $font-size-xs !important;
+}
+
+.font-14 {
+  font-size: $font-size-sm !important;
+}
+
+//font-weight
+
+.font-weight-medium {
+  font-weight: 500;
+}
+
+//border
+
+.border {
+  border: 1px solid $field-background;
+}
+
+.redirect-link {
+  color: $secondary;
+}
+
+.filter_errorMessage {
+  padding: 0.5rem;
+  color: $error;
+  background-color: #ffeaea;
+  text-align: center;
+  font-size: $font-size-sm;
+}
+
+.align-right {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+
+.smallTextField {
+  .MuiOutlinedInput-root {
+    height: 2.25rem;
+    font-size: $font-size-xs !important;
+  }
+
+  .MuiTextField-root {
+    width: 100%;
+    font-size: $font-size-xs !important;
+
+    input {
+      padding-top: 7px;
+      padding-bottom: 7px;
+      font-size: $font-size-xs !important;
+    }
+
+    label {
+      top: -9px;
+      font-size: $font-size-xs !important;
+    }
+
+    label[data-shrink="true"] {
+      top: 0;
+    }
+  }
+}
+
+.genericHeading {
+  font-size: $font-size-lg !important;
+  font-weight: 600 !important;
+}
+
+.MuiCircularProgress-svg {
+  color: $primary !important;
+}
+
+.backBtn {
+  cursor: pointer;
+  width: 4.3125rem;
+  height: 2rem;
+  background-color: $field-background;
+  font-size: $font-size-sm;
+  border-radius: 8px;
+}
+
+.sideBarDrawer {
+  .MuiPaper-root {
+    width: 80% !important;
+  }
+}
+
+.front-screen-container {
+  width: 100%;
+  min-height: calc(100svh - $header-height) !important;
+  height: 100% !important;
+  margin-top: $header-height;
+  position: relative;
+
+  @media print {
+    margin-top: 0rem !important;
+  }
+}
+
+.layout {
+  height: calc(100svh - $header-height) !important;
+  background-color: $white;
+  padding-inline: 1rem;
+  overflow: auto;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: calc(100svh - $header-height-sm) !important;
+  }
+}
+
+.invoice-background {
+  background-color: #f0f0f7 !important;
+
+  @media print {
+    background-color: #fff !important;
+  }
+}
+
+.text-primary {
+  color: $primary !important;
+}
+.text-danger {
+  color: $light-red !important;
+}
+
+.text-display {
+  font-family: "Kristi", cursive !important;
+}
+.grecaptcha-badge {
+  width: 70px !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+  left: 4px !important;
+}
+.grecaptcha-badge:hover {
+  width: 256px !important;
+}

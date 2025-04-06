@@ -1,0 +1,13 @@
+.sharedHeader {
+    height: 2.3rem;
+    border-left: 4px solid $primary;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    .sharedHeader-content {
+        font-weight: 600;
+        color: $black;
+        font-size: $font-size-base;
+    }
+}

@@ -1,0 +1,261 @@
+.button {
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+.button-primary {
+  background-color: $primary !important;
+  color: $white !important;
+}
+
+.button-light {
+  background-color: $white !important;
+  color: $primary !important;
+}
+
+.button-warning {
+  background-color: $warning !important;
+  color: $white !important;
+}
+
+.marketing-NavButton {
+  width: 14.4375rem !important;
+  background: $primary !important;
+  color: $white !important;
+  height: 3rem;
+  font-size: $font-size-sm !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2rem !important;
+    font-size: $font-size-xs !important;
+    height: 100%;
+  }
+}
+
+.calendlyButton {
+  width: 14.4375rem !important;
+  background: $secondary !important;
+  color: $white !important;
+  height: 4rem;
+  font-size: $font-size-base !important;
+  position: fixed;
+  border-radius: 2rem;
+  border: none;
+  bottom: 80px;
+  right: 10px;
+  z-index: 999;
+  cursor: pointer;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 3.75rem !important;
+    border-radius: 50%;
+    font-size: $font-size-xs !important;
+    width: 3.75rem !important;
+  }
+}
+
+.submitButton {
+  width: 14.4375rem !important;
+  background: $primary !important;
+  color: $white !important;
+  height: 3rem;
+  font-size: $font-size-sm !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2.625rem !important;
+    font-size: $font-size-xs !important;
+  }
+}
+
+.dangerButton {
+  width: 14.4375rem !important;
+  border: 1px solid $light-red !important;
+  color: $light-red !important;
+  background-color: $white !important;
+  height: 3rem;
+  font-size: $font-size-sm !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2.625rem !important;
+    font-size: $font-size-xs !important;
+  }
+}
+
+.clearButton {
+  width: 14.4375rem !important;
+  height: 3rem;
+  background-color: $white !important;
+  border: 1px solid $primary !important;
+  color: $primary !important;
+  font-size: $font-size-sm !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2.625rem !important;
+    font-size: $font-size-xs !important;
+  }
+}
+
+.unRegisterButton {
+  width: 14.4375rem !important;
+  height: 3rem;
+  font-size: $font-size-base !important;
+  border-radius: 0.5rem !important;
+  padding: 0.8125rem 1.375rem !important;
+  display: flex;
+  justify-content: space-between !important;
+  align-items: center;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 100% !important;
+    font-size: $font-size-sm !important;
+  }
+}
+
+.logoutButton {
+  width: 8.125rem !important;
+  background: $light-red !important;
+  height: 3rem;
+  color: $white !important;
+  font-size: $font-size-sm !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    width: 5.625rem !important;
+    height: 3rem !important;
+  }
+}
+
+.dialoge-button {
+  max-width: 10rem !important;
+  width: 100%;
+  padding: 0.5rem 1rem !important;
+  border-radius: 3.125rem !important;
+}
+
+.outlined-dialoge-button {
+  background-color: $white !important;
+  color: $secondary !important;
+  border: 1px solid $secondary !important;
+}
+
+.filled-dialoge-button {
+  background-color: $error !important;
+  color: $white !important;
+  border: 1px solid $error !important;
+}
+
+.uploadbutton {
+  background-color: $field-background !important;
+  border: 1px silid $gray !important;
+  color: $gray !important;
+  height: 3.125rem !important;
+  width: 11.25rem !important;
+}
+
+.filterButtons,
+.filterButtonsNotselected {
+  width: 7.5rem !important;
+  height: 2.25rem !important;
+  font-size: $font-size-xs !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    width: 100% !important;
+    padding: 1rem;
+  }
+}
+
+.filterButtons {
+  background-color: $primary !important;
+  color: $white !important;
+}
+
+.filterButtonsNotselected {
+  background-color: $field-background !important;
+  border: 1px solid $field-background !important;
+  color: #868686 !important;
+}
+
+.exportIconContainer {
+  background-color: $primary !important;
+  width: 11.4375rem !important;
+  height: 2.5rem !important;
+}
+
+.actionButton,
+.saveButton {
+  background-color: $primary !important;
+  display: flex;
+  align-items: center;
+}
+
+.actionButton {
+  width: 7.6875rem !important;
+  justify-content: space-between !important;
+}
+
+.saveButton {
+  min-width: 8.6875rem !important;
+  justify-content: center !important;
+}
+
+.marketingButton {
+  width: 14.4375rem !important;
+  height: 3rem;
+  background-color: transparent !important;
+  border: 1px solid $white !important;
+  color: $white !important;
+  font-size: $font-size-base !important;
+  border-radius: 4px !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2.625rem !important;
+    font-size: $font-size-sm !important;
+  }
+}
+
+.googleFromButton {
+  width: 14.4375rem !important;
+  height: 3rem;
+  background-color: $primary !important;
+  border: 1px solid $primary !important;
+  color: $white !important;
+  font-size: $font-size-base !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 2.625rem !important;
+    font-size: $font-size-sm !important;
+  }
+}
+
+.socialmedia-button {
+  width: 15.625rem !important;
+  height: 3rem;
+  background-color: #fff !important;
+  color: #333 !important;
+  border: 2px solid #ccc !important;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  margin: 5px;
+
+  &:hover {
+    background-color: #f1f1f1 !important;
+  }
+
+  @media screen and (max-width: $sm-breakpoint) {
+    height: 100% !important;
+    font-size: $font-size-sm !important;
+  }
+}
+
+.addCustomFieldBtn {
+  max-width: 9.4375rem !important;
+  background: $light-gray !important;
+  color: $gray !important;
+  border-color: $light-gray !important;
+  height: 2rem;
+  font-size: $font-size-xs !important;
+  text-transform: capitalize !important;
+
+}

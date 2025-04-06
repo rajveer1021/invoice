@@ -1,0 +1,38 @@
+// User Details
+.user-details,.client-details {
+    .user-content,.client-content {
+        font-size: $font-size-xs;
+        color: $gray;
+    }
+
+    .user-heading,.client-heading {
+        font-weight: $font-weight-medium !important;
+        color: $black;
+    }
+}
+
+// User Logo
+.user-logo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    width: 100%;
+    flex-direction: column;
+
+    @media screen and (max-width: $sm-breakpoint) {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .logoBox {
+        width: 6.25rem !important;
+        height: 6.25rem !important;
+
+        .logo {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+        }
+    }
+}

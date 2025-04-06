@@ -1,0 +1,52 @@
+.dateField {
+  max-width: 18.75rem !important;
+  width: 100%;
+  @media screen and (max-width: $sm-breakpoint) {
+    max-width: 100% !important;
+  }
+}
+.autoCompleteField {
+  min-width: 18.75rem !important;
+  width: 100% !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    width: 100% !important;
+  }
+}
+
+
+.autoCompleteUnitField {
+  .MuiInputLabel-root {
+    top: -12px !important;
+    font-size: 0.8rem !important;
+  }
+  .MuiInputLabel-shrink {
+    top: 0px !important;
+  }
+  .MuiOutlinedInput-root {
+    height: 1.5rem !important;
+    font-size: 0.8rem !important;
+  }
+  .MuiInputAdornment-root {
+    margin-left: 0rem !important;
+    font-size: 0.8rem;
+  }
+}
+.customField{
+  width: 100% !important;
+}
+.selectfield{
+  width: 4.6875rem !important;
+}
+.autoCompleteUnitField input {
+  font-size: 0.8rem !important;
+}
+
+.genericDateTimePicker {
+  min-width: 18.75rem !important;
+  width: 100% !important;
+
+  @media screen and (max-width: $sm-breakpoint) {
+    width: 100% !important;
+  }
+}

@@ -1,0 +1,54 @@
+.InvoiceOverViewContainer {
+  min-height: 9.625rem;
+  height: 100%;
+  border: 1px solid $field-background;
+  border-radius: 8px;
+  padding: 1rem;
+  @media screen and (max-width: $sm-breakpoint) {
+    min-height: 8.625rem;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .heading {
+    font-size: $font-size-base;
+    color: #545454;
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-sm;
+      text-align: center;
+    }
+  }
+
+  .amount {
+    font-size: $font-size-xxl !important;
+    font-weight: $font-weight-bold;
+    width: 100%;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    @media screen and (max-width: $sm-breakpoint) {
+      text-align: center;
+      font-size: $font-size-xl !important;
+    }
+
+  }
+
+  .unit {
+    margin-top: 0.8rem;
+    height: 28px;
+    max-width: 6rem;
+    width: 100%;
+    font-size: $font-size-sm !important;
+    background-color: $field-background;
+    border-radius: 0.25rem;
+    border: 1px solid #c9c9c9;
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-xs !important;
+      padding: 0.5rem;
+    }
+  }
+}

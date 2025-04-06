@@ -1,0 +1,24 @@
+.createInvoiceClient {
+  .addClientBtn {
+    font-size: $font-size-xs;
+    color: $primary;
+    cursor: pointer;
+  }
+}
+.createInvoiceClientDialogBox {
+  .toggleBtn {
+    cursor: pointer;
+    text-transform: capitalize;
+  }
+  .toggleContent {
+    font-size: $font-size-xs !important;
+    color: $primary;
+  }
+  .submitBtn {
+    text-transform: capitalize !important;
+  }
+  .closeBtn {
+    text-transform: capitalize !important;
+    color: $danger !important;
+  }
+}

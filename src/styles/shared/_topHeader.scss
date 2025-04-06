@@ -1,0 +1,24 @@
+.TopHeader {
+  height: $header-height;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-inline: 1rem;
+  padding-bottom: 5px;
+  z-index: 5;
+  background-color: $white;
+  @media screen and (max-width: $sm-breakpoint) {
+    align-items: center;
+    padding: 1rem;
+    height: $header-height-sm;
+  }
+
+  .heading {
+    font-size: $font-size-md;
+    font-weight: 600;
+
+    @media screen and (max-width: $sm-breakpoint) {
+      font-size: $font-size-base;
+    }
+  }
+}

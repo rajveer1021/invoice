@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Generate a business invoice in just a few minutes."
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./favicon_io/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./favicon_io/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./favicon_io/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="./favicon_io/android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="./favicon_io/android-chrome-512x512.png"
+    />
+    <link rel="manifest" href="./manifest.json" />
+    <title>Invoicean | Generate a business invoice in just a few minutes</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+
+    <script type="text/javascript">
+
+      function hasFunctionalCookiesConsent() {
+        const cookieString = document.cookie;
+        const cookies = cookieString.split(";").map((cookie) => cookie.trim());
+        const foundCookie = cookies.find((cookie) =>
+          cookie.startsWith("cookie_consent=")
+        );
+
+        if (foundCookie) {
+          const cookieValue = foundCookie.split("=")[1];
+          try {
+            const consent = JSON.parse(decodeURIComponent(cookieValue));
+            return consent.functional === true;
+          } catch (error) {
+            return false;
+          }
+        }
+
+        return false;
+      }
+      if (hasFunctionalCookiesConsent()) {
+        var $zoho = $zoho || {};
+        $zoho.salesiq = $zoho.salesiq || {
+          widgetcode:
+            "siqf473cf5f0ae2b8de39386327081e1ca0877d9876ab675bce38995fe7f83360b6",
+          values: {},
+          ready: function () {},
+        };
+        var d = document;
+        var s = d.createElement("script");
+        s.type = "text/javascript";
+        s.id = "zsiqscript";
+        s.defer = true;
+        s.src = "https://salesiq.zohopublic.in/widget";
+        var t = d.getElementsByTagName("script")[0];
+        t.parentNode.insertBefore(s, t);
+      }
+    </script>
+  </body>
+</html>
