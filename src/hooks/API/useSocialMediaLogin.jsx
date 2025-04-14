@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const useSocialMediaLogin = () => {
   const [SocialMediaLoading, setIsLoading] = useState(false);
   const { showErrorToast, showSuccessToast } = useToast();
+  const [subscribe, setSubscribed] = useState(false)
   const navigate = useNavigate();
 
   const socialMediaLogin = async (token, provider) => {
@@ -27,10 +28,15 @@ const useSocialMediaLogin = () => {
 
       const headersObjTwo = { access_token: accessToken, client, uid };
       const headersObj = { authorization };
-
       if (authResponse.data.data.profile_completed === true) {
-        navigate("/dashboard");
-      } else {
+        if (subscribe) {
+          navigate("/dashboard");
+        }
+        else {
+          navigate("/subscription");
+        }
+      }
+      else {
         navigate("/business-info");
       }
       showSuccessToast(

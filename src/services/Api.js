@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../constant";
 import { getHeaderDataFromLocalStorage } from "./Utils";
+import { createSubscription } from "react-redux/es/utils/Subscription";
 
 export const Api = createApi({
   reducerPath: "Api",
@@ -16,6 +17,56 @@ export const Api = createApi({
   }),
 
   endpoints: (builder) => ({
+    getUsageReport: builder.query({
+      query: () => {
+        return {
+          url: "/subscriptions/usage_report",
+          method: "GET",
+        };
+      },
+    }),
+    getSubscribedPlan: builder.query({
+      query: () => {
+        return {
+          url: "/subscriptions/subscribed_plan",
+          method: "GET",
+        };
+      },
+    }),
+    updateSubscription: builder.mutation({
+      query: ({ subscription_id, razorpay_payment_id, razorpay_subscription_id, razorpay_signature }) => ({
+        url: `/subscriptions/${subscription_id}`,
+        method: "PATCH",
+        body: {
+          razorpay_payment_id,
+          razorpay_subscription_id,
+          razorpay_signature,
+        },
+      }),
+    }),
+    createSubscription: builder.mutation({
+      query: (params) => ({
+        url: `/subscriptions`,
+        method: "POST",
+        body: params,
+      }),
+    }),
+    getSubscriptionPlans: builder.query({
+      query: () => {
+        return {
+          url: "/plans",
+          method: "GET",
+        };
+      },
+    }),
+    getSubscription: builder.query({
+      query: () => {
+        return {
+          url: "/subscriptions/active_subscription_status",
+          method: "GET",
+        };
+      },
+    }),
     getDashboard: builder.query({
       query: () => {
         return {
@@ -254,6 +305,13 @@ export const Api = createApi({
 });
 
 export const {
+  useLazyGetUsageReportQuery,
+  useLazyGetSubscribedPlanQuery,
+  useUpdateSubscriptionMutation,
+  useCreateSubscriptionMutation,
+  useLazyGetSubscriptionPlansQuery,
+  useGetSubscriptionQuery,
+  useLazyGetSubscriptionQuery,
   useGetDashboardQuery,
   useLazyLogoutQuery,
   useLazyDeleteInvoiceQuery,

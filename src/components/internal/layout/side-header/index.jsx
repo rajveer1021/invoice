@@ -11,6 +11,7 @@ import logo from "../../../../assets/logo/logo-dark.png";
 import { getUserDataFromLocalStorage } from "../../../../services/Utils";
 import LogoutDialog from "./../../dialog-box/LogoutDialog";
 import organsisation from "../../../../assets/images/organisation.jpeg";
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 const getCategoryFromPath = (path) => {
   if (
@@ -32,6 +33,8 @@ const getCategoryFromPath = (path) => {
     return "/accounts";
   } else if (path.startsWith("/reports")) {
     return "/reports";
+  }else if (path.startsWith("/manage-subscription")) {
+    return "/manage-subscription";
   }
   return "";
 };
@@ -63,6 +66,12 @@ const SideHeader = ({ isTourActive }) => {
       text: "Clients",
       icon: <PeopleAltOutlinedIcon />,
       id: "clients",
+    },
+    {
+      path: "/manage-subscription",
+      text: "Subscription",
+      icon: <AttachMoneyIcon />,
+      id: "subscriptions",
     },
     {
       path: "/accounts",

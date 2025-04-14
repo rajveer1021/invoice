@@ -5,9 +5,11 @@ import ShareIcon from "@mui/icons-material/Share";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DynamicFormSectionCreateClient from "../components/internal/DynamicFormSectionCreateClient";
+import { Email as EmailIcon } from '@mui/icons-material';
 
-export const BASE_URL = "https://api.invoicean.com/api/v1";
-// export const BASE_URL = "http://192.168.1.11:3000/api/v1";
+// export const BASE_URL = "https://api.invoicean.com/api/v1";
+export const BASE_URL = "http://192.168.1.66:8080/api/v1";
+
 export const GOOGLE_RECAPTCHA_SITEKEY =
   "6LcFcrUpAAAAAGQeHVvJW4vdrgZPEAuv1_WEomVF";
 export const GOOGLE_AUTH_TOKEN =
@@ -803,3 +805,59 @@ export const Bargraph = {
     { name: "Paid", data: ["1242826.2"] },
   ],
 };
+
+// Theme colours
+export const THEME_COLORS = {
+  primary: '#2196F3',
+  primaryLight: '#E3F2FD',
+  secondary: '#50B077',
+  secondaryLight: '#E8F5E9',
+  tertiary: '#9E9E9E',
+  white: '#FFFFFF',
+  lightGray: '#F5F5F5',
+  darkGray: '#333333',
+  text: '#333333',
+  green: '#50B077',
+};
+
+// Plan Theme colours
+export const PLAN_THEME_COLORS = {
+  primary: '#4A6CFA',
+  primaryLight: '#F0F5FF',
+  secondary: '#50B077',
+  secondaryLight: '#ECFBF3',
+  tertiary: '#64748B',
+  tertiaryLight: '#F8FAFC',
+  white: '#FFFFFF',
+  lightGray: '#F1F5F9',
+  darkGray: '#334155',
+  text: '#1E293B',
+  green: '#22C55E',
+  blue: '#4A6CFA',
+  blueLight: '#F0F5FF',
+  border: '#E2E8F0',
+  danger: '#EF4444',
+  warning: '#F59E0B',
+  warningLight: '#FFF7ED'
+};
+
+
+// Trail Page
+export const TRIAL_FEATURES = [
+  {
+    icon: <DescriptionIcon fontSize="small" sx={{ color: '#4a7dff' }} />,
+    content: 'Effortless Invoice Creation and Management'
+  },
+  {
+    icon: <EmailIcon fontSize="small" sx={{ color: '#4a7dff' }} />,
+    content: 'Send Invoices to your clients with Ease'
+  },
+  {
+    icon: <BarChartIcon fontSize="small" sx={{ color: '#4a7dff' }} />,
+    content: 'Comprehensive Reporting Capabilities'
+  },
+  {
+    icon: <PictureAsPdfIcon fontSize="small" sx={{ color: '#4a7dff' }} />,
+    content: 'Downloadable Invoices in PDF Format'
+  }
+];

@@ -33,6 +33,11 @@ import ConfirmAccount from "./components/pages/accounts/ConfirmAccount";
 import { usePageTracking } from "./hooks/usePageTracking";
 import ChangePassword from "./components/pages/user-account/ChangePassword";
 import SetPassword from "./components/pages/user-account/SetPassword";
+import ProtectedRoute from "./components/routes/ProtectedRoute"
+import PlansPage from "./components/pages/subscription/PlansPage";
+import TrialPage from "./components/pages/subscription/TrialPage";
+import CheckoutPage from "./components/pages/subscription/CheckoutPage";
+import ManageSubscriptionPage from "./components/pages/subscription/ManageSubscriptionPage";
 
 const App = () => {
   usePageTracking();
@@ -50,6 +55,13 @@ const App = () => {
         <Route path="/invoicean-tour" element={<TourInvnoicean />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
+        
+        {/* Subscription routes */}
+        <Route path="/checkout" element={<CheckoutPage/>} />
+        <Route path="/subscription" element={<TrialPage />} />
+        <Route path="/subscription-plans" element={<PlansPage />} />
+        <Route path="/manage-subscription" element={<ManageSubscriptionPage/>}/>
+
         <Route path="/legal/privacy-policy" element={<Privacy />} />
         <Route
           path="/legal/terms-and-conditions"
@@ -65,6 +77,7 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/confirm-account" element={<ConfirmAccount />} />
         <Route path="/business-info" element={<BusinessInfo />} />
+        {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/invoices" element={<Invoice />} />
         <Route path="/invoices/create-invoice" element={<CreateInvoice />} />
