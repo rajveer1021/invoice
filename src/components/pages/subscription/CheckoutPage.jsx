@@ -29,9 +29,12 @@ import { useLazyGetUserCompleteDataQuery, useCreateSubscriptionMutation, useUpda
 import FullscreenLoader from '../../shared/loader/FullscreenLoader';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import useToast from '../../../hooks/useToast'; 
+import useToast from '../../../hooks/useToast';
+import { useSubscriptionData } from '../../../hooks/API/useSubscriptionData';
 
 const CheckoutPage = () => {
+  const auth = useSubscriptionData();
+  console.log("subs data", auth);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -114,7 +117,7 @@ const CheckoutPage = () => {
     }
 
     if (isProcessing || updateLoading) {
-      return; 
+      return;
     }
 
     setIsProcessing(true);
@@ -145,7 +148,7 @@ const CheckoutPage = () => {
       if (!toastShownRef.current) {
         const toastMessage = data?.data?.user?.address ? 'Billing address updated successfully' : 'Billing address added successfully';
         showSuccessToast(toastMessage);
-        toastShownRef.current = true; 
+        toastShownRef.current = true;
       }
 
       // Refetch user data
@@ -200,18 +203,17 @@ const CheckoutPage = () => {
   };
 
   const getAmountInPaise = () => {
-    if (!selectedPlan) return 0;
+    if (!selectedPlan || !selectedPlan.yearlyPrice || !selectedPlan.monthlyPrice) return 0;
     const price = billingCycle === 'yearly'
-      ? parseFloat(selectedPlan.yearlyPrice.replace(/[^0-9.]/g, ''))
-      : parseFloat(selectedPlan.monthlyPrice.replace(/[^0-9.]/g, ''));
-    const adjustedPrice = billingCycle === 'yearly' ? price : price;
-    return Math.round(adjustedPrice * 100);
+      ? parseFloat(selectedPlan.yearlyPrice.replace(/[^0-9.]/g, '') || '0')
+      : parseFloat(selectedPlan.monthlyPrice.replace(/[^0-9.]/g, '') || '0');
+    return Math.round(price * 100);
   };
 
-  const baseAmount = selectedPlan
+  const baseAmount = selectedPlan && selectedPlan[billingCycle === 'yearly' ? 'yearlyPrice' : 'monthlyPrice']
     ? parseFloat((billingCycle === 'yearly'
       ? selectedPlan.yearlyPrice
-      : selectedPlan.monthlyPrice).replace(/[^0-9.]/g, ''))
+      : selectedPlan.monthlyPrice).replace(/[^0-9.]/g, '') || '0')
     : 0;
   const adjustedBaseAmount = billingCycle === 'yearly' ? baseAmount : baseAmount;
   const totalAmount = adjustedBaseAmount;

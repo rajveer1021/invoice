@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../constant";
 import { getHeaderDataFromLocalStorage } from "./Utils";
-import { createSubscription } from "react-redux/es/utils/Subscription";
 
 export const Api = createApi({
   reducerPath: "Api",

@@ -1,26 +1,38 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getHeaderDataFromLocalStorage,
-  getUserDataFromLocalStorage,
-} from "../services/Utils";
+import { useState, useEffect } from "react";
+import { useAuthCheck } from "./API/useAuthCheck";
+import { useSubscriptionData } from "./API/useSubscriptionData";
+import { useProfileNavigation } from "./API/useProfileNavigation";
 
 const useAuthentication = () => {
-  const navigate = useNavigate();
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
+  
+  const { isAuthenticated, userData, isChecking } = useAuthCheck();
+  
+  const { isSubscriptionLoading, subscriptionStatus } = useSubscriptionData(
+    isAuthenticated && !isChecking
+  );
+  
+  useProfileNavigation(
+    userData, 
+    subscriptionStatus, 
+    isChecking || isSubscriptionLoading
+  );
 
   useEffect(() => {
-    const checkLoginDetails = () => {
-      const userHeaderData = getHeaderDataFromLocalStorage();
-      const userData = getUserDataFromLocalStorage();
-      if (!(userHeaderData && userData)) {
-        navigate("/login");
-      }
-    };
+    if (!isChecking && !isSubscriptionLoading) {
+      const timer = setTimeout(() => {
+        setIsFullyLoaded(true);
+      }, 5);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isChecking, isSubscriptionLoading]);
 
-    checkLoginDetails();
-  }, [navigate]);
-
-  return;
+  return { 
+    isAuthLoading: !isFullyLoaded,
+    userData,
+    subscriptionStatus
+  };
 };
 
 export default useAuthentication;

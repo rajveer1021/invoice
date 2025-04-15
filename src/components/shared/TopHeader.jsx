@@ -5,6 +5,7 @@ import MobileSideHeader from "./../internal/layout/side-header/MobileSideHeader"
 import SelectAction from "./../internal/drop-down/SelectAction";
 import { getUserDataFromLocalStorage } from "../../services/Utils";
 import { CustomButton } from "./CustomButton";
+import { useSelector } from "react-redux";
 
 const TopHeader = ({
   clientUrl,
@@ -37,6 +38,13 @@ const TopHeader = ({
 
   const userData = getUserDataFromLocalStorage();
 
+  const subscription = useSelector((state) => state.subscription);
+
+  const isInvoiceQuotaExceeded =
+    subscription?.invoiceQuota?.used >= subscription?.invoiceQuota?.total;
+  const isClientQuotaExceeded =
+    subscription?.clientQuota?.used >= subscription?.clientQuota?.total;
+
   const RemoveDupilcateData = () => localStorage.removeItem("duplicateData");
 
   return (
@@ -60,7 +68,7 @@ const TopHeader = ({
               startIcon={<AddIcon />}
               id={"createClient"}
               url={clientUrl}
-              disabled={isTourActive}
+              disabled={isTourActive || isClientQuotaExceeded} 
             />
           )}
           {InvoiceUrl && (
@@ -70,7 +78,7 @@ const TopHeader = ({
               startIcon={<AddIcon />}
               id="createInvoice"
               url={InvoiceUrl}
-              disabled={isTourActive}
+              disabled={isTourActive || isInvoiceQuotaExceeded} 
               handleClick={RemoveDupilcateData}
             />
           )}

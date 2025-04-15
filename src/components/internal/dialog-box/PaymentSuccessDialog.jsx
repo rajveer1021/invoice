@@ -10,7 +10,7 @@ const PaymentSuccessDialog = ({ open, onClose }) => {
 
   const paymentDetails = {
     planName: selectedPlan?.name,
-    paymentId: paymentId || 'order_QGTE3TLkuNyyfO',
+    paymentId: paymentId,
   };
 
   const handleCreateReport = () => {
@@ -56,7 +56,6 @@ const PaymentSuccessDialog = ({ open, onClose }) => {
           transition: 'box-shadow 0.3s ease-in-out',
           '&:hover': { boxShadow: '0 8px 24px rgba(0,0,0,0.1)' },
         },
-        // Apply blur to the backdrop
         '& .MuiBackdrop-root': {
           backgroundColor: 'rgba(0, 0, 0, 0.3)', 
           backdropFilter: 'blur(4px)', 

@@ -8,7 +8,6 @@ import {
   Paper,
   Stack,
 } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setSelectedPlan, setBillingCycle } from '../../../features/subscription/subscriptionSlice';
@@ -20,7 +19,8 @@ import { PLAN_THEME_COLORS as THEME_COLORS } from '../../../constant/index';
 import PlansSection from '../../internal/PlansSection';
 import CurrentSubscriptionCard from '../../internal/CurrentSubscriptionCard';
 import SubscriptionUsage from '../../internal/SubscriptionUsage';
-import { useLazyGetSubscribedPlanQuery } from '../../../services/Api';
+import { useLazyGetSubscribedPlanQuery, useLazyGetUsageReportQuery } from '../../../services/Api';
+import SubscriptionExpiryNotice from '../../internal/SubscriptionExpiryNotice';
 
 const ManageSubscriptionPage = () => {
   useAuthentication();
@@ -28,17 +28,14 @@ const ManageSubscriptionPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [getSubscribedPlan, { data, isLoading, error }] = useLazyGetSubscribedPlanQuery();
-  const [subscription, setSubscription] = useState(null);  
-
-  const [usage] = useState({
-    invoices: { used: 100, total: 2000 },
-    clients: { used: 1, total: 3 },
-    nextRenewal: 'May 08, 2025',
-  });
+  const [getUsageReport, { data: usageData, isLoading: usageLoading, error: usageError }] = useLazyGetUsageReportQuery();
+  const [subscription, setSubscription] = useState(null);
+  const [usage, setUsage] = useState(null);
 
   useEffect(() => {
     getSubscribedPlan();
-  }, [getSubscribedPlan]);
+    getUsageReport();
+  }, [getSubscribedPlan, getUsageReport]);
 
   useEffect(() => {
     if (data?.status === 'success' && data?.data?.subscription) {
@@ -52,12 +49,12 @@ const ManageSubscriptionPage = () => {
       setSubscription({
         planId: subData.razorpay_subscription,
         name: subData.plan_name,
-        planType :
-          subData.plan_name === "Trial" ? "trial" :
-            subData.plan_name === "Basic Plan" ? "basic" :
-              subData.plan_name === "Professional Plan" ? "professional" :
-                subData.plan_name === "Enterprise Plan" ? "enterprise" :
-                  "unknown",
+        planType:
+          subData.plan_name === 'Trial' ? 'trial' :
+            subData.plan_name === 'Basic Plan' ? 'basic' :
+              subData.plan_name === 'Professional Plan' ? 'professional' :
+                subData.plan_name === 'Enterprise Plan' ? 'enterprise' :
+                  'unknown',
         status: subData.status.charAt(0).toUpperCase() + subData.status.slice(1),
         billingCycle: subData.interval,
         price: parseFloat(subData.price),
@@ -76,6 +73,16 @@ const ManageSubscriptionPage = () => {
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    if (usageData) {
+      setUsage({
+        invoices: { used: usageData.created_invoices, total: usageData.total_invoices },
+        clients: { used: usageData.created_clients, total: usageData.total_clients },
+        nextRenewal: subscription?.renewalDate || 'May 08, 2025',
+      });
+    }
+  }, [usageData, subscription]);
 
   const handleChangePlan = () => {
     document.getElementById('subscription-plans-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -124,11 +131,11 @@ const ManageSubscriptionPage = () => {
             bgcolor: THEME_COLORS.white,
           }}
         >
-          {isLoading ? (
+          {isLoading || usageLoading ? (
             <Typography>Loading subscription...</Typography>
-          ) : error ? (
+          ) : error || usageError ? (
             <Typography color="error">
-              Failed to load subscription: {error?.data?.message || 'Please try again.'}
+              Failed to load data: {error?.data?.message || usageError?.data?.message || 'Please try again.'}
             </Typography>
           ) : !subscription ? (
             <Typography>No active subscription found.</Typography>
@@ -144,45 +151,7 @@ const ManageSubscriptionPage = () => {
               </Box>
 
               {/* Subscription Expiry Notice */}
-              {subscription.expiresInDays <= 7 && subscription.status === 'Active' && (
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 2,
-                    bgcolor: THEME_COLORS.warningLight,
-                    border: `1px solid ${THEME_COLORS.warning}`,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <AccessTimeIcon sx={{ color: THEME_COLORS.warning, mr: 1.5 }} />
-                    <Typography variant="body2" fontWeight={500} color={THEME_COLORS.darkGray}>
-                      Your plan will expire in {subscription.expiresInDays} day
-                      {subscription.expiresInDays !== 1 ? 's' : ''}. Renew now to continue using all features.
-                    </Typography>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={handleRenewPlan}
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: 1.5,
-                      bgcolor: THEME_COLORS.warning,
-                      '&:hover': {
-                        bgcolor: THEME_COLORS.warning,
-                        opacity: 0.9,
-                      },
-                    }}
-                  >
-                    Renew Plan
-                  </Button>
-                </Paper>
-              )}
+                <SubscriptionExpiryNotice/>
 
               {/* Current Subscription */}
               <CurrentSubscriptionCard

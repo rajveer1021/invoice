@@ -1,16 +1,20 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import useToast from "../useToast";
 import { BASE_URL } from "../../constant";
-import { useLazyGetSubscriptionQuery } from "../../services/Api";
+import { useLazyGetSubscribedPlanQuery, useLazyGetUsageReportQuery } from "../../services/Api";
+import { setSubscription } from "../../features/subscription/subscriptionSlice";
 
 const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { showSuccessToast } = useToast();
   const navigate = useNavigate();
-  const [checkSubscription] = useLazyGetSubscriptionQuery();
+  const dispatch = useDispatch();
+  const [getSubscribedPlan] = useLazyGetSubscribedPlanQuery();
+  const [getUsageReport] = useLazyGetUsageReportQuery();
 
   const login = async (values, resetForm) => {
     setIsLoading(true);
@@ -31,13 +35,31 @@ const useLogin = () => {
       localStorage.setItem("userHeaderData", JSON.stringify(headersObj));
       localStorage.setItem("userAuthToken", JSON.stringify(headersObjTwo));
 
-      const subscriptionResult = await checkSubscription().unwrap();
-      
+      // Fetch subscription plan and usage report
+      const [subscriptionResult, usageResult] = await Promise.all([
+        getSubscribedPlan().unwrap(),
+        getUsageReport().unwrap(),
+      ]);
+
+      // Update Redux store with subscription and quota data
+      dispatch(setSubscription({
+        plan: subscriptionResult.data.subscription.plan_name,
+        status: subscriptionResult.data.subscription.status,
+        invoiceQuota: {
+          used: usageResult.created_invoices,
+          total: usageResult.total_invoices,
+        },
+        clientQuota: {
+          used: usageResult.created_clients,
+          total: usageResult.total_clients,
+        },
+      }));
+
       resetForm();
 
       if (!response.data.data.profile_completed) {
         navigate("/business-info");
-      } else if (!subscriptionResult.active_subscription) {
+      } else if (subscriptionResult.data.subscription.status !== "active") {
         navigate("/subscription");
       } else {
         navigate("/dashboard");

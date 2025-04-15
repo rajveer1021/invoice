@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import useSubscriptionGuard from '../../hooks/API/useSubscriptionGuard'; // Adjust path as needed
+import useSubscriptionGuard from '../../hooks/API/useSubscriptionGuard';
 import FullscreenLoader from '../shared/loader/FullscreenLoader';
 
 const ProtectedRoute = ({ requireSubscription = true, children }) => {

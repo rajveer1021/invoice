@@ -21,7 +21,6 @@ const PaymentButton = ({
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [paymentId, setPaymentId] = useState('');
 
-  // Create a reference to the Razorpay payment object
   let paymentObjectRef = null;
 
   const loadRazorpayScript = () => {
@@ -59,13 +58,10 @@ const PaymentButton = ({
       description: description,
       image: logoUrl,
       handler: async function (response) {
-        console.log('Razorpay Response:', response);
-        // Set payment completed and store the payment ID
         setPaymentCompleted(true);
         setPaymentId(response.razorpay_payment_id);
         
         try {
-          // Call updateSubscription mutation
           await updateSubscription({
             subscription_id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -73,7 +69,6 @@ const PaymentButton = ({
             razorpay_signature: response.razorpay_signature,
           }).unwrap();
           
-          // We'll handle success in the useEffect below
         } catch (error) {
           console.error('Update subscription failed:', error);
           setTimeout(() => {
@@ -91,7 +86,7 @@ const PaymentButton = ({
         address: JSON.stringify(billingAddress),
       },
       theme: {
-        color: '#F37254',
+        color: '#528FF0',
       },
       modal: {
         ondismiss: function () {
@@ -107,17 +102,14 @@ const PaymentButton = ({
     paymentObjectRef.open();
   };
 
-  // This effect handles the initial payment trigger
   useEffect(() => {
     if (triggerPayment && subscription_id && !processingPayment && !paymentCompleted) {
       handlePayment();
     }
   }, [triggerPayment, subscription_id]);
   
-  // This effect handles the post-payment success flow with a delay
   useEffect(() => {
     if (paymentCompleted && paymentId) {
-      // Add a 1000ms delay before calling onSuccess to ensure a smooth transition
       const successTimer = setTimeout(() => {
         setProcessingPayment(false);
         onSuccess && onSuccess(paymentId);

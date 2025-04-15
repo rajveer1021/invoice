@@ -25,15 +25,16 @@ import { CustomButton } from "../../shared/CustomButton";
 import AddIcon from "@mui/icons-material/Add";
 
 const Dashboard = () => {
-  useAuthentication();
+  const { isAuthLoading } = useAuthentication();
   useCheckProfileCompletion();
   const mobile = useMediaQuery("(max-width:600px)");
   const [isTourActive, setIsTourActive] = useState(false);
   const [dashboardData, { data, isLoading, isError }] =
-    useLazyGetDashboardQuery();  
+    useLazyGetDashboardQuery();
+
   const [introTourComplete] = useIntroTourCompletedMutation();
   const { showErrorToast } = useToast();
-    
+
   useEffect(() => {
     dashboardData();
   }, [dashboardData]);
@@ -111,12 +112,12 @@ const Dashboard = () => {
         };
       }
     }
-  }, [data,isLoading,isError]);
+  }, [data, isLoading, isError]);
 
   if (isError) {
     return <FallbackComponent />;
   }
-  if (isLoading) {
+  if (isAuthLoading || isLoading) {
     return <FullscreenLoader />;
   }
 
@@ -134,6 +135,10 @@ const Dashboard = () => {
             title="Dashboard"
             isTourActive={isTourActive}
           />
+          {/* Subscription Expiry Notice */}
+          {/* <SubscriptionExpiryNotice /> */}
+
+
           <Box className="layout">
             <Grid container>
               <Grid item xs={12}>

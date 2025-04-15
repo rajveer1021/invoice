@@ -22,6 +22,7 @@ import {
   useLazyGetUserDataInvoiceQuery,
 } from "../../../services/Api";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import useAuthentication from "../../../hooks/useAuthentication";
 import dayjs from "dayjs";
 import TopHeader from "../../shared/TopHeader";
@@ -41,6 +42,7 @@ import {
   getUserDataFromLocalStorage,
 } from "./../../../services/Utils";
 import { currencies, dueDates } from "../../../constant";
+import QuotaExceededDialog from "../../internal/dialog-box/QuotaExceededDialog";
 
 const CreateInvoice = () => {
   useAuthentication();
@@ -70,6 +72,11 @@ const CreateInvoice = () => {
   const userData = getUserDataFromLocalStorage();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
+  const [openQuotaDialog, setOpenQuotaDialog] = useState(false);
+
+  // Fetch invoice quota from Redux store
+  const { invoiceQuota } = useSelector((state) => state.subscription);
+  const remainingInvoices = invoiceQuota ? invoiceQuota.total - invoiceQuota.used : 0;
 
   useEffect(() => {
     const foundCurrencies = currencies.find((obj) => obj.code === "USD");
@@ -172,6 +179,12 @@ const CreateInvoice = () => {
   };
 
   const CreateInvoiceAPI = async (values, draft) => {
+    // Check if invoice quota is exceeded
+    if (remainingInvoices <= 0) {
+      setOpenQuotaDialog(true);
+      return;
+    }
+
     setInvoiceLoading(true);
 
     const { data, error } = await CreateInvoice({
@@ -198,7 +211,9 @@ const CreateInvoice = () => {
 
     if (data?.status === "success") {
       setInvoiceLoading(false);
-      rateData && navigate(`/invoices/preview/${data?.data?.invoice?.id}`);
+      rateData && navigate(`/
+
+invoices/preview/${data?.data?.invoice?.id}`);
       localStorage.removeItem("duplicateData");
     } else {
       setInvoiceLoading(false);
@@ -494,7 +509,7 @@ const CreateInvoice = () => {
                                         setFieldValue={setFieldValue}
                                       />
                                       <Box paddingLeft={!mobile && "1rem"}>
-                                      <FormControl
+                                        <FormControl
                                           className="mt-10 "
                                           sx={{
                                             minWidth: 120,
@@ -582,6 +597,11 @@ const CreateInvoice = () => {
                         </Grid>
                       </Grid>
                     </Box>
+                    <QuotaExceededDialog
+                      open={openQuotaDialog}
+                      onClose={() => setOpenQuotaDialog(false)}
+                      type="invoice"
+                    />
                   </form>
                 );
               }}

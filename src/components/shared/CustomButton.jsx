@@ -15,7 +15,7 @@ export const CustomButton = ({
   id,
   tooltipMessage,
   disabled = false,
-  type = "submit"
+  type = "submit",
 }) => {
   const buttonProps = {
     variant: variant || "contained",
@@ -28,12 +28,18 @@ export const CustomButton = ({
     disabled: disabled,
   };
 
+  const disabledStyle = {
+    "&.Mui-disabled": {
+      opacity: 0.7,
+    },
+  };
+
   if (url) {
     return (
       <Button
         component={Link}
         to={url}
-        sx={{ cursor: "pointer" }}
+        sx={{ cursor: "pointer", ...disabledStyle }}
         {...buttonProps}
         id={id}
         disabled={disabled}
@@ -44,9 +50,11 @@ export const CustomButton = ({
   }
 
   return (
-    <Tooltip title={tooltipMessage && tooltipMessage} arrow placement="top">
+    <Tooltip title={tooltipMessage || ""} arrow placement="top">
       <span>
-        <Button {...buttonProps}>{title}</Button>
+        <Button {...buttonProps} sx={disabledStyle}>
+          {title}
+        </Button>
       </span>
     </Tooltip>
   );
