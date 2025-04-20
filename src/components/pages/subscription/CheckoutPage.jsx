@@ -17,26 +17,29 @@ import {
   Edit as EditIcon,
   ReceiptLong
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Link as MuiLink } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { setPaymentStatus, setPaymentId } from '../../../features/subscription/subscriptionSlice';
 import Header from '../../internal/layout/Header';
 import PaymentButton from '../../internal/PaymentButton';
 import PaymentSuccessDialog from '../../internal/dialog-box/PaymentSuccessDialog';
-import { useLazyGetUserCompleteDataQuery, useCreateSubscriptionMutation, useUpdateUserDataMutation } from '../../../services/Api';
+import {
+  useLazyGetUserCompleteDataQuery,
+  useCreateSubscriptionMutation,
+  useUpdateUserDataMutation,
+  useLazyGetPlanDetailsQuery
+} from '../../../services/Api';
 import FullscreenLoader from '../../shared/loader/FullscreenLoader';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useToast from '../../../hooks/useToast';
-import { useSubscriptionData } from '../../../hooks/API/useSubscriptionData';
 
 const CheckoutPage = () => {
-  const auth = useSubscriptionData();
-  console.log("subs data", auth);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [searchParams] = useSearchParams();
+  const planId = searchParams.get('planId');
+  const billingCycle = searchParams.get('billingCycle');
 
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [subscriptionRazorpayId, setSubscriptionRazorpayId] = useState('');
@@ -44,21 +47,14 @@ const CheckoutPage = () => {
   const [addressAdded, setAddressAdded] = useState(false);
   const [openSuccessDialog, setOpenSuccessDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [addressError, setAddressError] = useState('');
-  const toastShownRef = useRef(false); // Track if toast has been shown
+  const [paymentId, setPaymentId] = useState('');
+  const toastShownRef = useRef(false);
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { selectedPlan, billingCycle } = useSelector(state => state.subscription);
-  const { showSuccessToast, showErrorToast } = useToast(); // Use the toast hook
+  const { showSuccessToast, showErrorToast } = useToast();
 
-  useEffect(() => {
-    if (!selectedPlan) {
-      navigate('/subscription-plans');
-    }
-  }, [selectedPlan, navigate]);
-
-  const [getUserData, { data, isLoading, error }] = useLazyGetUserCompleteDataQuery();
+  const [getPlanDetails, { data: planData, isLoading: planLoading, error: planError }] = useLazyGetPlanDetailsQuery();
+  const [getUserData, { data: userData, isLoading: userLoading, error: userError }] = useLazyGetUserCompleteDataQuery();
   const [createSubscription, { isLoading: subscriptionLoading, error: subscriptionError }] = useCreateSubscriptionMutation();
   const [updateUserData, { isLoading: updateLoading, error: updateError }] = useUpdateUserDataMutation();
 
@@ -71,13 +67,42 @@ const CheckoutPage = () => {
     country: '',
   });
 
-  useEffect(() => {
-    getUserData();
-  }, [getUserData]);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
-    if (data?.data?.user) {
-      const user = data.data.user;
+    if (!planId || !billingCycle || !['monthly', 'yearly'].includes(billingCycle)) {
+      navigate('/manage-subscription');
+    } else {
+      getPlanDetails({ plan_id: planId });
+      getUserData();
+    }
+  }, [planId, billingCycle, navigate, getPlanDetails, getUserData]);
+
+  useEffect(() => {
+    if (planData?.data?.plan) {
+      const plan = planData.data.plan;
+      const priceField = plan.interval === 'year' ? 'yearlyPrice' : 'monthlyPrice';
+      setSelectedPlan({
+        id: plan.plan_type,
+        apiPlanId: plan.id,
+        name: plan.name,
+        [priceField]: `₹${plan.price || 0}`,
+        color: plan.plan_type === 'trial' ? '#FF9800' : '#1976D2',
+        buttonText: plan.plan_type === 'trial' ? 'Start Free Trial' : `Subscribe to ${plan.name}`,
+        features: [
+          ...plan.plan_items.map(item =>
+            item.is_unlimited ? `Unlimited ${item.name}s` : `${item.quantity} ${item.name}s`
+          ),
+          ...(plan.invoice_duplicable ? ['Recurring Invoices'] : []),
+          ...(plan.multi_currency_support ? ['Multiple Currency Support'] : []),
+        ],
+      });
+    }
+  }, [planData]);
+
+  useEffect(() => {
+    if (userData?.data?.user) {
+      const user = userData.data.user;
       setBillingAddress({
         addressLine1: user.address || '',
         addressLine2: user.address_1 || '',
@@ -92,14 +117,12 @@ const CheckoutPage = () => {
       } else {
         setAddressAdded(false);
       }
+      toastShownRef.current = false;
     }
-    // Reset toast flag when user data changes
-    toastShownRef.current = false;
-  }, [data]);
+  }, [userData]);
 
   const handleAddressChange = (e) => {
     setBillingAddress({ ...billingAddress, [e.target.name]: e.target.value });
-    setAddressError('');
   };
 
   const validateAddress = () => {
@@ -122,7 +145,7 @@ const CheckoutPage = () => {
 
     setIsProcessing(true);
     try {
-      const user = data?.data?.user || {};
+      const user = userData?.data?.user || {};
       const values = {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
@@ -142,20 +165,17 @@ const CheckoutPage = () => {
 
       await updateUserData({ values, userLogo: null }).unwrap();
       setAddressAdded(true);
-      setAddressError('');
 
-      // Show toast only if it hasn't been shown
       if (!toastShownRef.current) {
-        const toastMessage = data?.data?.user?.address ? 'Billing address updated successfully' : 'Billing address added successfully';
+        const toastMessage = userData?.data?.user?.address ? 'Billing address updated successfully' : 'Billing address added successfully';
         showSuccessToast(toastMessage);
         toastShownRef.current = true;
       }
 
-      // Refetch user data
       await getUserData();
     } catch (err) {
       console.error('Failed to update billing address:', err);
-      showErrorToast('Failed to update billing address. Please try again.'); // Use hook's error toast
+      showErrorToast('Failed to update billing address. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -167,32 +187,32 @@ const CheckoutPage = () => {
       return;
     }
     setIsProcessing(true);
-
-    if (selectedPlan.id === 'free') {
-      const freePaymentId = 'free_plan_' + Date.now();
-      dispatch(setPaymentId(freePaymentId));
-      dispatch(setPaymentStatus('success'));
-      setOpenSuccessDialog(true);
-      setIsProcessing(false);
-    } else {
-      try {
-        const subscriptionResponse = await createSubscription({ plan_id: selectedPlan?.apiPlanId }).unwrap();
-        const newSubscriptionId = subscriptionResponse?.data?.subscription?.razorpay_subscription;
-        const subscription_id = subscriptionResponse?.data?.subscription?.id;
-
-        if (!newSubscriptionId) {
-          throw new Error('Subscription ID not received');
-        }
-        setSubscriptionRazorpayId(newSubscriptionId);
-        setSubscriptionId(subscription_id);
-        dispatch(setPaymentStatus('pending'));
-        setShowRazorpay(true);
-      } catch (err) {
-        console.error('Subscription creation failed:', err);
-        showErrorToast('Failed to create subscription. Please try again.');
-        dispatch(setPaymentStatus('failed'));
+  
+    let newSubscriptionId = null;
+    let subscription_id = null;
+  
+    try {
+      const subscriptionResponse = await createSubscription({ plan_id: selectedPlan?.apiPlanId }).unwrap();
+      const subscription = subscriptionResponse?.data?.subscription;
+      newSubscriptionId = subscription?.razorpay_subscription;
+      subscription_id = subscription?.id;
+  
+      if (selectedPlan?.id === 'trial') {
+        setOpenSuccessDialog(true);
         setIsProcessing(false);
+        return;
       }
+  
+      if (!newSubscriptionId) {
+        throw new Error('Subscription ID not received');
+      }
+  
+      setSubscriptionRazorpayId(newSubscriptionId);
+      setSubscriptionId(subscription_id);
+      setShowRazorpay(true);
+    } catch (err) {
+      showErrorToast('Failed to create subscription. Please try again.');
+      setIsProcessing(false);
     }
   };
 
@@ -200,34 +220,34 @@ const CheckoutPage = () => {
     setOpenSuccessDialog(false);
     setSubscriptionId('');
     setSubscriptionRazorpayId('');
+    setPaymentId('');
   };
 
   const getAmountInPaise = () => {
-    if (!selectedPlan || !selectedPlan.yearlyPrice || !selectedPlan.monthlyPrice) return 0;
-    const price = billingCycle === 'yearly'
-      ? parseFloat(selectedPlan.yearlyPrice.replace(/[^0-9.]/g, '') || '0')
-      : parseFloat(selectedPlan.monthlyPrice.replace(/[^0-9.]/g, '') || '0');
+    if (!selectedPlan) return 0;
+    const priceField = billingCycle === 'yearly' ? 'yearlyPrice' : 'monthlyPrice';
+    const price = parseFloat(selectedPlan[priceField]?.replace(/[^0-9.]/g, '') || '0');
     return Math.round(price * 100);
   };
 
-  const baseAmount = selectedPlan && selectedPlan[billingCycle === 'yearly' ? 'yearlyPrice' : 'monthlyPrice']
-    ? parseFloat((billingCycle === 'yearly'
-      ? selectedPlan.yearlyPrice
-      : selectedPlan.monthlyPrice).replace(/[^0-9.]/g, '') || '0')
+  const totalAmount = selectedPlan
+    ? parseFloat((billingCycle === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice)?.replace(/[^0-9.]/g, '') || '0')
     : 0;
-  const adjustedBaseAmount = billingCycle === 'yearly' ? baseAmount : baseAmount;
-  const totalAmount = adjustedBaseAmount;
 
   const primaryColor = selectedPlan?.color || theme.palette.primary.main;
-  const buttonBgColor = selectedPlan?.id === 'free' ? primaryColor : '#3366FF';
+  const buttonBgColor = selectedPlan?.id === 'trial' ? primaryColor : '#3366FF';
 
   const commonStyles = {
     sectionTitle: { variant: "subtitle1", fontWeight: 600, color: "text.secondary", mb: 2 },
     paper: { p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }
   };
 
-  if (isLoading) {
+  if (planLoading || userLoading) {
     return <FullscreenLoader />;
+  }
+
+  if (planError) {
+    return <Typography align="center" color="error">Failed to load plan details.</Typography>;
   }
 
   return (
@@ -236,7 +256,7 @@ const CheckoutPage = () => {
       <ToastContainer />
       <Container maxWidth="xl" sx={{ mt: { xs: 8, md: 10 }, mb: 5 }}>
         <Box sx={{ p: { xs: 1, md: 2 } }}>
-          <Typography variant="h4" sx={{ mb: { xs: 2, sm: 0, md: 3 }, fontSize: 30, fontWeight: 600, color: 'black' }}>
+          <Typography variant="h4" sx={{ mb: { xs: 2, md: 3 }, fontSize: 30, fontWeight: 600, color: 'black' }}>
             Complete Your Subscription
           </Typography>
 
@@ -261,7 +281,7 @@ const CheckoutPage = () => {
                           {billingCycle === 'yearly' ? 'Annual Billing' : 'Monthly Billing'}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {billingCycle === 'yearly' ? selectedPlan?.yearlyPrice : `₹ ${baseAmount} per month`}
+                          {selectedPlan ? (billingCycle === 'yearly' ? selectedPlan.yearlyPrice : selectedPlan.monthlyPrice) : 'N/A'}
                         </Typography>
                       </Box>
                     </Box>
@@ -273,123 +293,112 @@ const CheckoutPage = () => {
                     2. ADD BILLING ADDRESS
                   </Typography>
                   <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, borderColor: 'divider', backgroundColor: addressAdded ? '#F8F9FA' : 'white' }}>
-                    {isLoading ? (
-                      <CircularProgress />
-                    ) : (
-                      <>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12}>
-                            <TextField
-                              fullWidth
-                              label="Address Line 1"
-                              name="addressLine1"
-                              value={billingAddress.addressLine1}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              required
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                              sx={{ mb: 1 }}
-                            />
-                          </Grid>
-                          <Grid item xs={12}>
-                            <TextField
-                              fullWidth
-                              label="Address Line 2 (Optional)"
-                              name="addressLine2"
-                              value={billingAddress.addressLine2}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                              sx={{ mb: 1 }}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <TextField
-                              fullWidth
-                              label="Town or City"
-                              name="city"
-                              value={billingAddress.city}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              required
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <TextField
-                              fullWidth
-                              label="State"
-                              name="state"
-                              value={billingAddress.state}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              required
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <TextField
-                              fullWidth
-                              label="Post Code"
-                              name="postCode"
-                              value={billingAddress.postCode}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              required
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <TextField
-                              fullWidth
-                              label="Country"
-                              name="country"
-                              value={billingAddress.country}
-                              onChange={handleAddressChange}
-                              variant="outlined"
-                              required
-                              InputLabelProps={{ shrink: true }}
-                              disabled={addressAdded || updateLoading}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sx={{ textAlign: 'right', mt: 1 }}>
-                            {!addressAdded ? (
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={addBillingAddress}
-                                disabled={isProcessing || updateLoading}
-                                startIcon={isProcessing || updateLoading ? <CircularProgress size={20} /> : null}
-                                sx={{ px: 3, py: 1, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
-                              >
-                                {isProcessing || updateLoading ? 'Saving...' : 'Add Billing Address'}
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="outlined"
-                                color="primary"
-                                startIcon={<EditIcon />}
-                                onClick={() => setAddressAdded(false)}
-                                disabled={isProcessing || updateLoading}
-                                sx={{ px: 3, py: 1, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
-                              >
-                                Edit Address
-                              </Button>
-                            )}
-                          </Grid>
-                        </Grid>
-                        {addressError && (
-                          <Typography color="error" sx={{ mt: 2 }}>
-                            {addressError}
-                          </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Address Line 1"
+                          name="addressLine1"
+                          value={billingAddress.addressLine1}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          required
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                          sx={{ mb: 1 }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Address Line 2 (Optional)"
+                          name="addressLine2"
+                          value={billingAddress.addressLine2}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                          sx={{ mb: 1 }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Town or City"
+                          name="city"
+                          value={billingAddress.city}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          required
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="State"
+                          name="state"
+                          value={billingAddress.state}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          required
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Post Code"
+                          name="postCode"
+                          value={billingAddress.postCode}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          required
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Country"
+                          name="country"
+                          value={billingAddress.country}
+                          onChange={handleAddressChange}
+                          variant="outlined"
+                          required
+                          InputLabelProps={{ shrink: true }}
+                          disabled={addressAdded || updateLoading}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sx={{ textAlign: 'right', mt: 1 }}>
+                        {!addressAdded ? (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={addBillingAddress}
+                            disabled={isProcessing || updateLoading}
+                            startIcon={isProcessing || updateLoading ? <CircularProgress size={20} /> : null}
+                            sx={{ px: 3, py: 1, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+                          >
+                            {isProcessing || updateLoading ? 'Saving...' : 'Add Billing Address'}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<EditIcon />}
+                            onClick={() => setAddressAdded(false)}
+                            disabled={isProcessing || updateLoading}
+                            sx={{ px: 3, py: 1, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+                          >
+                            Edit Address
+                          </Button>
                         )}
-                      </>
-                    )}
+                      </Grid>
+                    </Grid>
                   </Paper>
                 </Box>
 
@@ -407,7 +416,7 @@ const CheckoutPage = () => {
                       py: 1.5,
                       borderRadius: 2,
                       backgroundColor: buttonBgColor,
-                      '&:hover': { backgroundColor: selectedPlan?.id === 'free' ? '#115293' : '#2952CC' },
+                      '&:hover': { backgroundColor: selectedPlan?.id === 'trial' ? '#115293' : '#2952CC' },
                       textTransform: 'none',
                       fontWeight: 600,
                       fontSize: '1rem'
@@ -417,7 +426,7 @@ const CheckoutPage = () => {
                   </Button>
                 )}
 
-                {selectedPlan?.id !== 'free' && (
+                {selectedPlan?.id !== 'trial' && (
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 2 }}>
                     <InfoIcon fontSize="small" color="action" sx={{ mr: 1, mt: 0.2 }} />
                     <Typography variant="body2" color="text.secondary">
@@ -426,35 +435,39 @@ const CheckoutPage = () => {
                   </Box>
                 )}
 
-                {selectedPlan?.id !== 'free' && (
+                {selectedPlan?.id !== 'trial' && (
                   <PaymentButton
                     billingAddress={billingAddress}
                     razorpay_subscription_id={subscriptionRazorpayId}
                     subscription_id={subscriptionId}
                     amount={getAmountInPaise()}
                     triggerPayment={showRazorpay}
-                    onSuccess={(paymentId) => {
+                    onSuccess={(newPaymentId) => {
                       setOpenSuccessDialog(true);
-                      dispatch(setPaymentId(paymentId));
-                      dispatch(setPaymentStatus('success'));
+                      setPaymentId(newPaymentId);
                       setShowRazorpay(false);
                       setIsProcessing(false);
                       setSubscriptionRazorpayId('');
                       setSubscriptionId('');
                     }}
                     onFailure={() => {
-                      dispatch(setPaymentStatus('failed'));
+                      showErrorToast('Payment failed. Please try again.');
                       setShowRazorpay(false);
                       setIsProcessing(false);
                       setSubscriptionRazorpayId('');
                       setSubscriptionId('');
                     }}
-                    userName={`${data?.data?.user?.first_name || ''} ${data?.data?.user?.last_name || ''}`.trim()}
-                    userEmail={data?.data?.user?.email || ''}
-                    userContact={data?.data?.user?.phone_no || ''}
+                    userName={`${userData?.data?.user?.first_name || ''} ${userData?.data?.user?.last_name || ''}`.trim()}
+                    userEmail={userData?.data?.user?.email || ''}
+                    userContact={userData?.data?.user?.phone_no || ''}
                   />
                 )}
-                <PaymentSuccessDialog open={openSuccessDialog} onClose={handleSuccessDialogClose} />
+                <PaymentSuccessDialog
+                  open={openSuccessDialog}
+                  onClose={handleSuccessDialogClose}
+                  selectedPlan={selectedPlan}
+                  paymentId={paymentId}
+                />
               </Paper>
             </Grid>
 
@@ -469,9 +482,9 @@ const CheckoutPage = () => {
                   </Box>
                   <Box>
                     <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ mb: 0.5 }}>
-                      {selectedPlan?.name || 'Premium Plan'}
+                      {selectedPlan?.name || 'Selected Plan'}
                     </Typography>
-                    <MuiLink component={RouterLink} to="/subscription-plans" sx={{ color: 'text.secondary', fontWeight: 600, textDecoration: 'none', fontSize: '0.875rem', '&:hover': { textDecoration: 'underline' } }}>
+                    <MuiLink component={RouterLink} to="/subscription-plans" sx={{ color: 'text.secondary', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
                       Change Plan
                     </MuiLink>
                   </Box>
@@ -489,7 +502,7 @@ const CheckoutPage = () => {
                 <Divider sx={{ my: 2.5 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Typography variant="h6" fontWeight={600}>Total Amount</Typography>
-                  <Typography variant="h6" fontWeight={600} color="primary.main">₹{totalAmount || '260'}</Typography>
+                  <Typography variant="h6" fontWeight={600} color="primary.main">₹{totalAmount || '0'}</Typography>
                 </Box>
 
                 {isMobile && (
@@ -506,13 +519,13 @@ const CheckoutPage = () => {
                       py: 1.5,
                       borderRadius: 2,
                       backgroundColor: buttonBgColor,
-                      '&:hover': { backgroundColor: selectedPlan?.id === 'free' ? '#115293' : '#2952CC' },
+                      '&:hover': { backgroundColor: selectedPlan?.id === 'trial' ? '#115293' : '#2952CC' },
                       textTransform: 'none',
                       fontWeight: 600,
                       fontSize: '1rem'
                     }}
                   >
-                    {isProcessing || subscriptionLoading ? 'Processing...' : 'Proceed to Checkout'}
+                    {isProcessing || subscriptionLoading ? 'Processing...' : (selectedPlan?.buttonText || 'Proceed to Checkout')}
                   </Button>
                 )}
 

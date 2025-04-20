@@ -55,13 +55,6 @@ const App = () => {
         <Route path="/invoicean-tour" element={<TourInvnoicean />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
-        
-        {/* Subscription routes */}
-        <Route path="/checkout" element={<CheckoutPage/>} />
-        <Route path="/subscription" element={<TrialPage />} />
-        <Route path="/subscription-plans" element={<PlansPage />} />
-        <Route path="/manage-subscription" element={<ManageSubscriptionPage/>}/>
-
         <Route path="/legal/privacy-policy" element={<Privacy />} />
         <Route
           path="/legal/terms-and-conditions"
@@ -77,24 +70,34 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/confirm-account" element={<ConfirmAccount />} />
         <Route path="/business-info" element={<BusinessInfo />} />
-        {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/invoices" element={<Invoice />} />
-        <Route path="/invoices/create-invoice" element={<CreateInvoice />} />
+        <Route path="/subscription" element={<TrialPage />} />
+        <Route path="/subscription-plans" element={<PlansPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+
+        {/* Protected Routes */}
         <Route
-          path="/invoices/duplicate-invoice/:id"
-          element={<DuplicateInvoice />}
-        />
-        <Route path="/invoices/preview/:id" element={<InvoicePreview />} />
-        <Route path="/invoices/edit-invoice/:id" element={<EditInvoice />} />
-        <Route path="/invoices/:id/share" element={<ShareInvoice />} />
-        <Route path="/clients" element={<ClientPage />} />
-        <Route path="/clients/add-client" element={<CreateClient />} />
-        <Route path="/clients/edit-client/:id" element={<EditClient />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/accounts" element={<Account />} />
-        <Route path="/accounts/change-password" element={<ChangePassword />} />
-        <Route path="/accounts/set-password" element={<SetPassword />} />
+          element={<ProtectedRoute requireSubscription={true} />}
+        >
+          <Route path="/dashboard" element={<Dashboard />}/>
+          <Route path="/invoices" element={<Invoice />} />
+          <Route
+            path="/invoices/duplicate-invoice/:id"
+            element={<DuplicateInvoice />}
+          />
+          <Route path="/invoices/create-invoice" element={<CreateInvoice />} />
+          <Route path="/invoices/preview/:id" element={<InvoicePreview />} />
+          <Route path="/invoices/edit-invoice/:id" element={<EditInvoice />} />
+          <Route path="/invoices/:id/share" element={<ShareInvoice />} />
+          <Route path="/clients" element={<ClientPage />} />
+          <Route path="/clients/add-client" element={<CreateClient />} />
+          <Route path="/clients/edit-client/:id" element={<EditClient />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/manage-subscription" element={<ManageSubscriptionPage />} />
+          <Route path="/accounts" element={<Account />} />
+          <Route path="/accounts/change-password" element={<ChangePassword />} />
+          <Route path="/accounts/set-password" element={<SetPassword />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <ToastContainer />

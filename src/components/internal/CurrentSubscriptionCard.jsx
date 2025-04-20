@@ -1,4 +1,3 @@
-// CurrentSubscriptionCard.jsx
 import React from 'react';
 import {
   Paper,
@@ -11,28 +10,20 @@ import {
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { PLAN_THEME_COLORS as THEME_COLORS } from '../../constant/index';
 
-const defaultSubscription = {
-  planId: 'professional',
-  name: 'Professional Plan',
-  status: 'Active',
-  billingCycle: 'yearly',
-  price: 400,
-  renewalDate: 'April 08, 2026',
-  paymentMethod: {
-    type: 'VISA',
-    lastFour: '4242',
-    expiry: '11/28',
-  },
-  nextBillingAmount: 4800,
-  features: ['60 Invoices', '45 Clients', 'Recurring Invoices', 'Multiple Currency Support'],
-};
-
 const CurrentSubscriptionCard = ({
-  subscription = defaultSubscription,
+  subscription,
   onChangePlan,
   onManagePayments,
   onCancelSubscription,
 }) => {
+  const handleCancelClick = () => {
+    if (subscription && subscription.subscriptionId) {
+      onCancelSubscription(subscription.subscriptionId);
+    } else {
+      console.error("Cannot cancel subscription: Invalid or missing subscription ID");
+    }
+  };
+
   return (
     <Paper
       elevation={0}
@@ -190,9 +181,6 @@ const CurrentSubscriptionCard = ({
                   <Typography variant="body2" fontWeight={500} color={THEME_COLORS.text}>
                     •••• •••• •••• {subscription.paymentMethod.lastFour}
                   </Typography>
-                  <Typography variant="caption" color={THEME_COLORS.tertiary}>
-                    Expires {subscription.paymentMethod.expiry}
-                  </Typography>
                 </Box>
               </Box>
             </Paper>
@@ -205,7 +193,7 @@ const CurrentSubscriptionCard = ({
             variant="outlined"
             color="error"
             size="small"
-            onClick={onCancelSubscription}
+            onClick={handleCancelClick} // Use our new handler
             sx={{
               textTransform: 'none',
               borderRadius: 1.5,

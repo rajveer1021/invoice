@@ -19,21 +19,19 @@ const AmountField = ({
   quantity,
   currency,
   disabled,
-}) => {
+  line_type,
+}) => {  
   const { touched, errors, setFieldValue } = useFormikContext();
   const [amt, setAmt] = useState(data || "");
-
+  const rateValue = Number(rate) || 0;
+  const quantityValue = Number(quantity) || 0;
+  
   const handlemultiply = () => {
-    if (
-      rate !== undefined &&
-      rate > "0.00" &&
-      quantity !== undefined &&
-      quantity > 0
-    ) {
-      const amount = (rate || 0) * (quantity || 0);
+    if ( line_type === 'item' ) {
+      const amount = (rateValue || 0) * (quantityValue || 0);
       setAmt(amount.toFixed(2));
       setFieldValue(name, amount.toFixed(2));
-    } else {
+    } else if (line_type === 'expense') {
       setFieldValue(name, amt);
     }
   };
@@ -52,7 +50,7 @@ const AmountField = ({
       setAmt(value);
       setFieldValue(name, value);
     } else {
-      const amount = (rate || 0) * (quantity || 0);
+      const amount = (rateValue || 0) * (quantityValue || 0);
       setAmt(amount.toFixed(2));
       setFieldValue(name, amount.toFixed(2));
     }
@@ -70,7 +68,6 @@ const AmountField = ({
           name={name}
           label={label}
           type="number"
-          multiline
           rows={rows}
           value={amt}
           disabled={disabled}

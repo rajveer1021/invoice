@@ -193,7 +193,7 @@ const EditInvoice = () => {
         due_date: selectedDueDate?.value,
         currency: selectedCurrency?.code,
         status: draft
-          ? "draft"
+         ? "draft"
           : "unpaid",
         invoice_name: values.invoice_name || "",
         note: values.Notes || "",
@@ -227,10 +227,45 @@ const EditInvoice = () => {
         </Grid>
         <Grid item xs={12} sm={9} md={9} lg={9.8} xl={10}>
           <Formik
+
             enableReinitialize
             initialValues={InvoiceInitialvalues}
             onSubmit={(values) => {
-              UpdateInvoiceAPI(values);
+              const validationErrors = [];
+
+              values.item.forEach((item, index) => {
+                const { line_type, title } = item;
+                const itemName = title || `Item #${index + 1}`;
+          
+                switch (line_type) {
+                  case "item":
+                    if (!item.quantity || isNaN(item.quantity) || item.quantity <= 0) {
+                      validationErrors.push(`${itemName}: Please enter quantity greater than 0`);
+                    }
+          
+                    if (!item.rate || isNaN(item.rate) || item.rate <= 0) {
+                      validationErrors.push(`${itemName}: Please enter rate greater than 0`);
+                    }
+                    break;
+          
+                  case "expense":
+                    if (!item.amount || isNaN(item.amount) || item.amount <= 0) {
+                      validationErrors.push(`${itemName}: Please enter amount greater than 0`);
+                    }
+                    break;
+          
+                  default:
+                    validationErrors.push(`${itemName}: Unknown line type "${line_type}"`);
+                }
+              });
+          
+              if (validationErrors.length > 0) {
+                validationErrors.forEach(error => showErrorToast(error));
+                return; 
+              }
+          
+              UpdateInvoiceAPI(values); 
+                
             }}
           >
             {({
@@ -242,6 +277,7 @@ const EditInvoice = () => {
               errors,
               touched,
             }) => {
+            
               let sum = 0;
               values.item.forEach((item) => {
                 if (item.amount) {
@@ -251,6 +287,7 @@ const EditInvoice = () => {
               setAmt(sum.toFixed(2));
 
               const handleAddItem = () => {
+             
                 const newItem = {
                   title: "",
                   quantity: "",
@@ -263,8 +300,14 @@ const EditInvoice = () => {
               };
 
               const handleAddExpence = () => {
-                const newExpense = { title: "", amount: "" ,line_type: "expense",};
+              
+                const newExpense = {
+                  title: "",
+                  amount: "",
+                  line_type: "expense",
+                };
                 setFieldValue("item", [...values.item, newExpense]);
+             
               };
               const handleDeleteItem = (index) => {
                 if (values.item.length > 1) {
@@ -456,6 +499,7 @@ const EditInvoice = () => {
                                         handleDeleteItem={handleDeleteItem}
                                         selectedCurrency={selectedCurrency}
                                         selectedOption={selectedOption}
+                                        setFieldValue={setFieldValue}
                                       />
                                       <Box paddingLeft={!mobile && "1rem"}>
                                         <FormControl
@@ -479,7 +523,7 @@ const EditInvoice = () => {
                                             label="New Line"
                                             sx={{ fontSize: "0.8rem" }}
                                             onChange={(e) =>
-                                              setSelectedOption(e.target.value)
+                                              setSelectedOption(e.target.value)        
                                             }
                                           >
                                             <MenuItem

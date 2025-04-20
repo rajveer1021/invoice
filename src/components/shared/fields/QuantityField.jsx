@@ -10,7 +10,7 @@ const QuantityField = ({ id, name, label, value, disabled }) => {
     const numericValue = parseFloat(inputValue, 10);
 
    if (inputValue === "") {
-    setFieldValue(name, undefined); 
+    setFieldValue(name, 0); 
   } else if (!isNaN(numericValue)) {
     const newValue = Math.max(numericValue, 0);
     setFieldValue(name, newValue);

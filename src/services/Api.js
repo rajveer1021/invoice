@@ -16,6 +16,20 @@ export const Api = createApi({
   }),
 
   endpoints: (builder) => ({
+    cancelSubscription: builder.mutation({
+      query: ({ id }) => ({
+        url: `/subscriptions/${id}/cancel`,
+        method: "DELETE",
+      }),
+    }),
+    getPlanDetails: builder.query({
+      query: ({ plan_id }) => {
+        return {
+          url: `/plans/${plan_id}`,
+          method: "GET",
+        };
+      },
+    }),
     getUsageReport: builder.query({
       query: () => {
         return {
@@ -304,7 +318,11 @@ export const Api = createApi({
 });
 
 export const {
+  useCancelSubscriptionMutation,
+  useLazyGetPlanDetailsQuery,
   useLazyGetUsageReportQuery,
+  useGetUsageReportQuery,
+  useGetSubscribedPlanQuery,
   useLazyGetSubscribedPlanQuery,
   useUpdateSubscriptionMutation,
   useCreateSubscriptionMutation,

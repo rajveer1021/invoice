@@ -6,19 +6,7 @@ import {
     CardContent,
   } from '@mui/material';
   import CheckIcon from '@mui/icons-material/Check';
-  
-  const THEME_COLORS = {
-    primary: '#2196F3',
-    primaryLight: '#E3F2FD',
-    secondary: '#50B077',
-    secondaryLight: '#E8F5E9',
-    tertiary: '#9E9E9E',
-    white: '#FFFFFF',
-    lightGray: '#F5F5F5',
-    darkGray: '#333333',
-    text: '#333333',
-    green: '#50B077',
-  };
+  import {THEME_COLORS} from '../../constant/index';
   
   const PlanFeature = ({ feature, color }) => (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>

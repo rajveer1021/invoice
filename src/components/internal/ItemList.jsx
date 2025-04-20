@@ -87,6 +87,7 @@ const ItemList = ({
         )}
 
         {itemFields?.map((item, index) => {
+          
           return (
             <Box
               className="mt-18"
@@ -107,7 +108,7 @@ const ItemList = ({
                     label="Description"
                     state={"100%"}
                     line_type_name={`item[${index}].line_type`}
-                    selectedOption={selectedOption}
+                    selectedOption={item?.line_type}
                     onChange={(e) => {
                       setFieldValue(`item[${index}].title`, e.target.value);
                     }}
@@ -115,8 +116,7 @@ const ItemList = ({
                 </Grid>
 
                 <Grid item xs={6} sm={2}>
-                  {item.quantity !== undefined &&
-                    item.quantity !== 0 &&
+                  {
                     item.line_type!== "expense" && (
                       <QuantityField
                         name={`item[${index}].quantity`}
@@ -154,6 +154,7 @@ const ItemList = ({
                     label="Amount"
                     disabled={item.line_type !== "expense"}
                     currency={selectedCurrency?.code}
+                    line_type={item.line_type}
                   />
                 </Grid>
 

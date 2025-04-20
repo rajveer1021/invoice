@@ -8,7 +8,7 @@ const RateField = ({ id, name, label, value, disabled }) => {
   const handleChange = (e) => {
     const inputValue = e.target.value;
     const newValue = Math.max(parseFloat(inputValue), 0);
-    setFieldValue(name, isNaN(newValue) ? "" : newValue);
+    setFieldValue(name, isNaN(newValue) ? 0 : newValue);
   };
 
   return (

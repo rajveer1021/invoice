@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Paper, Box, Typography, Button, CircularProgress } from '@mui/material';
+import { Paper, Box, Typography, Button } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { PLAN_THEME_COLORS as THEME_COLORS } from '../../constant/index';
 import { useLazyGetSubscribedPlanQuery } from '../../services/Api';
@@ -36,7 +36,7 @@ const SubscriptionExpiryNotice = ({ onRenew }) => {
         return null;
     }
 
-    if (expiresInDays > 40) {
+    if (expiresInDays > 7) {
         return null;
     }
 

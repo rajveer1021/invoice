@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Divider,
   FormControl,
   Grid,
@@ -22,7 +21,6 @@ import {
   useLazyGetUserDataInvoiceQuery,
 } from "../../../services/Api";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import useAuthentication from "../../../hooks/useAuthentication";
 import dayjs from "dayjs";
 import TopHeader from "../../shared/TopHeader";
@@ -37,6 +35,7 @@ import BackButton from "../../shared/BackButton";
 import useToast from "../../../hooks/useToast";
 import FallbackComponent from "../../shared/FallbackComponent";
 import useCheckProfileCompletion from "../../../hooks/useCheckProfileCompletion";
+import { useInvoiceQuota } from "../../../hooks/API/useInvoiceQuota"; 
 import {
   getStatusColors,
   getUserDataFromLocalStorage,
@@ -74,9 +73,8 @@ const CreateInvoice = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [openQuotaDialog, setOpenQuotaDialog] = useState(false);
 
-  // Fetch invoice quota from Redux store
-  const { invoiceQuota } = useSelector((state) => state.subscription);
-  const remainingInvoices = invoiceQuota ? invoiceQuota.total - invoiceQuota.used : 0;
+  const { canCreateInvoice, isLoading, error } = useInvoiceQuota(true);
+  const isInvoiceQuotaExceeded = !canCreateInvoice;  
 
   useEffect(() => {
     const foundCurrencies = currencies.find((obj) => obj.code === "USD");
@@ -140,7 +138,10 @@ const CreateInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClient, updateClient]);
 
+
+
   const register = (values) => {
+
     const totalAmount = values.item.reduce((total, item) => {
       return total + parseFloat(item.amount);
     }, 0);
@@ -179,14 +180,13 @@ const CreateInvoice = () => {
   };
 
   const CreateInvoiceAPI = async (values, draft) => {
-    // Check if invoice quota is exceeded
-    if (remainingInvoices <= 0) {
+    if (isInvoiceQuotaExceeded) {
       setOpenQuotaDialog(true);
       return;
     }
 
     setInvoiceLoading(true);
-
+    
     const { data, error } = await CreateInvoice({
       item: values?.item,
       invoice: {
@@ -262,9 +262,46 @@ invoices/preview/${data?.data?.invoice?.id}`);
                 Notes: "",
               }}
               onSubmit={(values, { resetForm }) => {
+                let validationErrors = [];
+                values.item.forEach((item, index) => {
+                  const { line_type, title, quantity, rate, amount } = item;
+                  const itemName = title || `Item #${index + 1}`;
+                
+                  if (!title) {
+                    validationErrors.push(`${itemName}: Please add description`);
+                  }
+                
+                  switch (line_type) {
+                    case "item":
+                      if (!quantity || isNaN(quantity) || quantity <= 0) {
+                        validationErrors.push(`${itemName}: Quantity must be greater than 0`);
+                      }
+                
+                      if (!rate || isNaN(rate) || rate <= 0) {
+                        validationErrors.push(`${itemName}: Rate must be greater than 0`);
+                      }
+                      break;
+                
+                    case "expense":
+                      if (!amount || isNaN(amount) || amount <= 0) {
+                        validationErrors.push(`${itemName}: Amount is required and must be greater than 0`);
+                      }
+                      break;
+                
+                    default:
+                      validationErrors.push(`${itemName}: Unknown line type "${line_type}"`);
+                  }
+                });
+
+                if (validationErrors.length > 0) {
+                  validationErrors.forEach(error => showErrorToast(error));
+                  return; 
+                }
+
                 if (selectedClient == null) {
                   setClientErrorMessage("Please select Client");
                 } else {
+                  
                   register(values, resetForm);
                   CreateInvoiceAPI(values, draft);
                 }
@@ -303,6 +340,7 @@ invoices/preview/${data?.data?.invoice?.id}`);
                 setAmt(sum?.toFixed(2));
 
                 const handleAddItem = () => {
+               
                   const newItem = {
                     title: "",
                     quantity: "",
@@ -315,12 +353,15 @@ invoices/preview/${data?.data?.invoice?.id}`);
                 };
 
                 const handleAddExpence = () => {
+                  
                   const newExpense = {
                     title: "",
                     amount: "",
                     line_type: "expense",
                   };
                   setItemFields([...itemFields, newExpense]);
+                  
+                
                 };
                 const handleDeleteItem = (index) => {
                   if (itemFields.length > 1) {
@@ -373,19 +414,7 @@ invoices/preview/${data?.data?.invoice?.id}`);
                               </Grid>
                               <Grid item xs={12}>
                                 <Box className="mt-18">
-                                  {clientErrorMessage ? (
-                                    <ErrorAlert
-                                      errorMessage={clientErrorMessage}
-                                    />
-                                  ) : (
-                                    <>
-                                      {errorMessage && (
-                                        <ErrorAlert
-                                          errorMessage={errorMessage}
-                                        />
-                                      )}
-                                    </>
-                                  )}
+                                {clientErrorMessage && <ErrorAlert errorMessage={clientErrorMessage} />}
                                   <Box className="createInvoice-container mt-18">
                                     <Box className="invoiceNumberContainer">
                                       <Box className="topHeader">
@@ -497,7 +526,6 @@ invoices/preview/${data?.data?.invoice?.id}`);
                                         sx={{ width: "100%" }}
                                         className="mt-18 mb-18"
                                       />
-
                                       <ItemList
                                         itemFields={itemFields && itemFields}
                                         values={values && values}

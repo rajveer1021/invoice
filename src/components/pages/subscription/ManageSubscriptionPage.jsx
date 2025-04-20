@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Typography,
   Container,
-  Button,
   Grid,
-  Paper,
   Stack,
+  CircularProgress,
+  Skeleton,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setSelectedPlan, setBillingCycle } from '../../../features/subscription/subscriptionSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
 import TopHeader from '../../shared/TopHeader';
 import SideHeader from '../../internal/layout/side-header';
 import useAuthentication from '../../../hooks/useAuthentication';
@@ -19,98 +17,148 @@ import { PLAN_THEME_COLORS as THEME_COLORS } from '../../../constant/index';
 import PlansSection from '../../internal/PlansSection';
 import CurrentSubscriptionCard from '../../internal/CurrentSubscriptionCard';
 import SubscriptionUsage from '../../internal/SubscriptionUsage';
-import { useLazyGetSubscribedPlanQuery, useLazyGetUsageReportQuery } from '../../../services/Api';
+import { useGetSubscribedPlanQuery, useGetUsageReportQuery, useCancelSubscriptionMutation } from '../../../services/Api';
 import SubscriptionExpiryNotice from '../../internal/SubscriptionExpiryNotice';
+import { mapSubscriptionData, mapUsageData, getErrorMessage } from '../../../services/Utils';
+import CancelSubscriptionDialog from '../../../components/internal/dialog-box/CancelSubscriptionDialog';
 
+// Custom Hook
+const useSubscriptionAndUsage = (forceRefresh) => {
+  const {
+    data: subscriptionData,
+    isLoading: subscriptionLoading,
+    error: subscriptionError,
+    refetch: refetchSubscription,
+  } = useGetSubscribedPlanQuery(forceRefresh, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const {
+    data: usageData,
+    isLoading: usageLoading,
+    error: usageError,
+    refetch: refetchUsage,
+  } = useGetUsageReportQuery(forceRefresh, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const [subscription, setSubscription] = useState(null);
+  const [usage, setUsage] = useState(null);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  useEffect(() => {
+    if (subscriptionLoading) return;
+    setSubscription(mapSubscriptionData(subscriptionData));
+  }, [subscriptionData, subscriptionLoading]);
+
+  useEffect(() => {
+    if (usageLoading || !usageData) return;
+    setUsage(mapUsageData(usageData, subscription?.renewalDate));
+  }, [usageData, usageLoading, subscription]);
+
+  useEffect(() => {
+    if (!subscriptionLoading && !usageLoading && !initialLoadComplete) {
+      setInitialLoadComplete(true);
+    }
+  }, [subscriptionLoading, usageLoading, initialLoadComplete]);
+
+  const refreshData = useCallback(() => {
+    refetchSubscription();
+    refetchUsage();
+  }, [refetchSubscription, refetchUsage]);
+
+  return {
+    subscription,
+    usage,
+    subscriptionLoading,
+    usageLoading,
+    subscriptionError,
+    usageError,
+    initialLoadComplete,
+    refreshData,
+  };
+};
+
+// Main Component
 const ManageSubscriptionPage = () => {
   useAuthentication();
   const mobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [getSubscribedPlan, { data, isLoading, error }] = useLazyGetSubscribedPlanQuery();
-  const [getUsageReport, { data: usageData, isLoading: usageLoading, error: usageError }] = useLazyGetUsageReportQuery();
-  const [subscription, setSubscription] = useState(null);
-  const [usage, setUsage] = useState(null);
+  const location = useLocation();
+  const locationKey = React.useRef(location.key || 'default');
+  const [forceRefresh, setForceRefresh] = useState(Date.now());
+  const [cancelSubscription, { isLoading: isCancelling, isSuccess, isError, error }] = useCancelSubscriptionMutation();
+
+  // State for the confirmation dialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [subscriptionToCancel, setSubscriptionToCancel] = useState(null);
+
+  const {
+    subscription,
+    usage,
+    subscriptionLoading,
+    usageLoading,
+    subscriptionError,
+    usageError,
+    initialLoadComplete,
+    refreshData,
+  } = useSubscriptionAndUsage(forceRefresh);
 
   useEffect(() => {
-    getSubscribedPlan();
-    getUsageReport();
-  }, [getSubscribedPlan, getUsageReport]);
-
-  useEffect(() => {
-    if (data?.status === 'success' && data?.data?.subscription) {
-      const subData = data.data.subscription;
-
-      const currentPeriodEnd = new Date(subData.current_period_end);
-      const now = new Date();
-      const timeDiff = currentPeriodEnd - now;
-      const expiresInDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-      setSubscription({
-        planId: subData.razorpay_subscription,
-        name: subData.plan_name,
-        planType:
-          subData.plan_name === 'Trial' ? 'trial' :
-            subData.plan_name === 'Basic Plan' ? 'basic' :
-              subData.plan_name === 'Professional Plan' ? 'professional' :
-                subData.plan_name === 'Enterprise Plan' ? 'enterprise' :
-                  'unknown',
-        status: subData.status.charAt(0).toUpperCase() + subData.status.slice(1),
-        billingCycle: subData.interval,
-        price: parseFloat(subData.price),
-        renewalDate: new Date(subData.next_cycle_at).toLocaleDateString('en-US', {
-          month: 'long',
-          day: '2-digit',
-          year: 'numeric',
-        }),
-        paymentMethod: {
-          type: subData.card_brand || 'Unknown',
-          lastFour: subData.card_last_digit || '****',
-          expiry: 'N/A',
-        },
-        nextBillingAmount: subData.interval === 'month' ? parseFloat(subData.price) : parseFloat(subData.price) * 12,
-        expiresInDays: expiresInDays > 0 ? expiresInDays : 0,
-      });
+    if (locationKey.current !== location.key) {
+      locationKey.current = location.key;
+      setForceRefresh(Date.now());
     }
-  }, [data]);
+  }, [location.key]);
 
+  // Effect to refresh data after successful cancellation
   useEffect(() => {
-    if (usageData) {
-      setUsage({
-        invoices: { used: usageData.created_invoices, total: usageData.total_invoices },
-        clients: { used: usageData.created_clients, total: usageData.total_clients },
-        nextRenewal: subscription?.renewalDate || 'May 08, 2025',
-      });
+    if (isSuccess) {
+      refreshData();
     }
-  }, [usageData, subscription]);
+  }, [isSuccess, refreshData]);
 
-  const handleChangePlan = () => {
-    document.getElementById('subscription-plans-section')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const handleChangePlan = useCallback(() => {
+    document
+      .getElementById('subscription-plans-section')
+      ?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
-  const handleManagePayments = () => {
+  const handleManagePayments = useCallback(() => {
     navigate('/manage-payments');
-  };
+  }, [navigate]);
 
-  const handleCancelSubscription = () => {
-    // Note: This should ideally call an API to cancel the subscription
-    setSubscription((prev) => ({ ...prev, status: 'Cancelled' }));
-  };
-
-  const handleRenewPlan = () => {
-    if (subscription) {
-      dispatch(
-        setSelectedPlan({
-          planId: subscription.planId,
-          name: subscription.name,
-          price: subscription.price,
-          interval: subscription.billingCycle,
-        })
-      );
-      dispatch(setBillingCycle(subscription.billingCycle));
-      navigate('/checkout');
+  // Open confirmation dialog
+  const handleOpenCancelDialog = useCallback((subscriptionId) => {
+    if (!subscriptionId) {
+      return;
     }
-  };
+    setSubscriptionToCancel(subscriptionId);
+    setDialogOpen(true);
+  }, []);
+
+  // Close dialog without action
+  const handleCloseDialog = useCallback(() => {
+    setDialogOpen(false);
+    setSubscriptionToCancel(null);
+  }, []);
+
+  // Process with cancellation after confirmation
+  const handleConfirmCancellation = useCallback(async () => {
+    if (!subscriptionToCancel) {
+      setDialogOpen(false);
+      return;
+    }
+    try {
+      await cancelSubscription({ id: subscriptionToCancel }).unwrap();
+    } catch (err) {
+    } finally {
+      setDialogOpen(false);
+      setSubscriptionToCancel(null);
+    }
+  }, [subscriptionToCancel, cancelSubscription]);
+
+  const showLoading = !initialLoadComplete && (subscriptionLoading || usageLoading);
 
   return (
     <Grid container sx={{ bgcolor: THEME_COLORS.white, minHeight: '100vh' }}>
@@ -131,14 +179,28 @@ const ManageSubscriptionPage = () => {
             bgcolor: THEME_COLORS.white,
           }}
         >
-          {isLoading || usageLoading ? (
-            <Typography>Loading subscription...</Typography>
-          ) : error || usageError ? (
-            <Typography color="error">
-              Failed to load data: {error?.data?.message || usageError?.data?.message || 'Please try again.'}
-            </Typography>
-          ) : !subscription ? (
-            <Typography>No active subscription found.</Typography>
+          {showLoading ? (
+            <Stack spacing={2}>
+              <Skeleton variant="rectangular" height={100} />
+              <Skeleton variant="rectangular" height={200} />
+              <Skeleton variant="rectangular" height={300} />
+            </Stack>
+          ) : subscriptionError || usageError ? (
+            <Box>
+              <Typography color="error" gutterBottom>
+                {getErrorMessage(subscriptionError || usageError)}
+              </Typography>
+              <Typography
+                role="button"
+                tabIndex={0}
+                color="primary"
+                sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                onClick={refreshData}
+                onKeyDown={(e) => e.key === 'Enter' && refreshData()}
+              >
+                Click here to try again
+              </Typography>
+            </Box>
           ) : (
             <Stack spacing={3}>
               <Box>
@@ -150,21 +212,44 @@ const ManageSubscriptionPage = () => {
                 </Typography>
               </Box>
 
-              {/* Subscription Expiry Notice */}
-                <SubscriptionExpiryNotice/>
+              <SubscriptionExpiryNotice />
 
-              {/* Current Subscription */}
-              <CurrentSubscriptionCard
-                subscription={subscription}
-                onChangePlan={handleChangePlan}
-                onManagePayments={handleManagePayments}
-                onCancelSubscription={handleCancelSubscription}
-              />
+              {subscriptionLoading && initialLoadComplete && (
+                <Box py={1}>
+                  <Typography color="text.secondary" display="flex" alignItems="center">
+                    <CircularProgress size={16} sx={{ mr: 1 }} />
+                    Refreshing plan data...
+                  </Typography>
+                </Box>
+              )}
 
-              {/* Usage Statistics */}
-              <SubscriptionUsage usage={usage} />
+              {subscription ? (
+                <CurrentSubscriptionCard
+                  subscription={subscription}
+                  onChangePlan={handleChangePlan}
+                  onManagePayments={handleManagePayments}
+                  onCancelSubscription={handleOpenCancelDialog}
+                />
+              ) : (
+                <Box>
+                  <Typography gutterBottom>
+                    No active subscription found.
+                  </Typography>
+                  <Typography
+                    role="button"
+                    tabIndex={0}
+                    color="primary"
+                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={handleChangePlan}
+                    onKeyDown={(e) => e.key === 'Enter' && handleChangePlan()}
+                  >
+                    Choose a plan
+                  </Typography>
+                </Box>
+              )}
 
-              {/* Available Plans */}
+              {usage && <SubscriptionUsage usage={usage} />}
+
               <div id="subscription-plans-section">
                 <PlansSection subscription={subscription} />
               </div>
@@ -172,6 +257,13 @@ const ManageSubscriptionPage = () => {
           )}
         </Container>
       </Grid>
+
+      <CancelSubscriptionDialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirmCancellation}
+        isCancelling={isCancelling}
+      />
     </Grid>
   );
 };

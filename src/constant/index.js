@@ -861,3 +861,11 @@ export const TRIAL_FEATURES = [
     content: 'Downloadable Invoices in PDF Format'
   }
 ];
+
+// Plan Types
+export const PLAN_TYPES = {
+  'Trial': 'trial',
+  'Basic Plan': 'basic',
+  'Professional Plan': 'professional',
+  'Enterprise Plan': 'enterprise',
+};

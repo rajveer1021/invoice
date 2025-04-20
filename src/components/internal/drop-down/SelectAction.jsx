@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DeleteInvoiceDialog from "../dialog-box/DeleteInvoice";
 import { useDownloadInvoicePDF } from "../../../hooks/useDownloadInvoicePDF";
+import useIsPremiumPlan from "../../../hooks/API/useIsPremiumPlan";
 
 const SelectAction = ({
   id,
@@ -26,6 +27,7 @@ const SelectAction = ({
   setSent,
   invoiceName
 }) => {
+  const { isPremium } = useIsPremiumPlan();
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const handleButtonClick = (event) => {
@@ -186,7 +188,7 @@ const SelectAction = ({
 
                 <MenuItem
                   onClick={() => {
-                    downloadInvoicePDF(id,invoiceName);
+                    downloadInvoicePDF(id, invoiceName);
                   }}
                   className="font-12"
                   sx={{ width: "100%", justifyContent: "center" }}
@@ -194,7 +196,7 @@ const SelectAction = ({
                   Download as PDF
                 </MenuItem>
 
-                <MenuItem
+                {isPremium && (<MenuItem
                   onClick={() => {
                     setDupicate();
                   }}
@@ -202,7 +204,8 @@ const SelectAction = ({
                   sx={{ width: "100%", justifyContent: "center" }}
                 >
                   Duplicate Invoice
-                </MenuItem>
+                </MenuItem>)}
+
                 <MenuItem
                   onClick={() => {
                     handleDeleteInvoice(id);

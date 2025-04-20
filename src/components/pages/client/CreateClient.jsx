@@ -15,6 +15,8 @@ import SideHeader from "../../internal/layout/side-header";
 import DynamicFormSection from "../../internal/DynamicFormSection";
 import useCheckProfileCompletion from "../../../hooks/useCheckProfileCompletion";
 import DynamicCustomFieldSection from "../../internal/DynamicCustomFieldSection";
+import QuotaExceededDialog from "../../internal/dialog-box/QuotaExceededDialog";
+import { useInvoiceQuota } from "../../../hooks/API/useInvoiceQuota";
 
 const CreateClient = () => {
   useAuthentication();
@@ -24,10 +26,20 @@ const CreateClient = () => {
   const [invalid, setInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsloading] = useState(false);
+  const [openQuotaDialog, setOpenQuotaDialog] = useState(false);
 
   const { access_token, uid, client } = getAuthDataFromLocalStorage();
 
+  const { canCreateClient } = useInvoiceQuota(true);
+  const isClientQuotaExceeded = !canCreateClient;
+
   const handleAddClient = async (values, resetForm) => {
+    // CreateClient Quota check
+    if (isClientQuotaExceeded) {
+      setOpenQuotaDialog(true);
+      return;
+    }
+
     setIsloading(true);
 
     const params = {
@@ -232,6 +244,11 @@ const CreateClient = () => {
                     <Box className="mb-50" />
                   </Box>
                 </Box>
+                <QuotaExceededDialog
+                  open={openQuotaDialog}
+                  onClose={() => setOpenQuotaDialog(false)}
+                  type="client"
+                />
               </form>
             )}
           </Formik>

@@ -1,30 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLazyGetSubscriptionQuery } from '../../services/Api';
+import { useGetSubscriptionQuery } from '../../services/Api';
 
 const useSubscriptionGuard = (requireSubscription = true) => {
   const navigate = useNavigate();
-  const [checkSubscription, { data, isLoading }] = useLazyGetSubscriptionQuery();
+  const { data, isLoading, error, isFetching } = useGetSubscriptionQuery();
+  const hasCheckedRef = useRef(false);
 
   useEffect(() => {
-    const validateSubscription = async () => {
-      try {
-        const result = await checkSubscription().unwrap();
-        const hasActiveSubscription = result?.active_subscription;
-        
-        if (requireSubscription && !hasActiveSubscription) {
+    if ((!hasCheckedRef.current || data || error) && !isLoading && !isFetching) {
+      hasCheckedRef.current = true;
+      
+      if (data) {
+        const isActive = !!data.active_subscription;
+        if (requireSubscription && !isActive) {
           navigate('/subscription');
         }
-      } catch (error) {
-        console.error('Subscription validation failed:', error);
+      } else if (error) {
         navigate('/login');
       }
-    };
+    }
+    
+  }, [data, error, navigate, requireSubscription, isLoading, isFetching]);
 
-    validateSubscription();
-  }, [checkSubscription, navigate, requireSubscription]);
-
-  return { hasActiveSubscription: data?.active_subscription, isLoading };
+  return {
+    hasActiveSubscription: !!data?.active_subscription,
+    isLoading: isLoading || isFetching,
+    error,
+  };
 };
 
-export default useSubscriptionGuard 
+export default useSubscriptionGuard;

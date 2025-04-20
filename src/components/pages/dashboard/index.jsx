@@ -23,9 +23,10 @@ import useToast from "../../../hooks/useToast";
 import { Bargraph } from "../../../constant";
 import { CustomButton } from "../../shared/CustomButton";
 import AddIcon from "@mui/icons-material/Add";
+import SubscriptionExpiryNotice from "../../internal/SubscriptionExpiryNotice";
 
 const Dashboard = () => {
-  const { isAuthLoading } = useAuthentication();
+  useAuthentication();
   useCheckProfileCompletion();
   const mobile = useMediaQuery("(max-width:600px)");
   const [isTourActive, setIsTourActive] = useState(false);
@@ -95,7 +96,7 @@ const Dashboard = () => {
             driverObj.destroy();
             setIsTourActive(false);
             const response = introTourComplete()
-            response.then((response)=>(
+            response.then((response) => (
               response?.error && showErrorToast(response.error.data.errors[0]))
             ).catch(err => showErrorToast("An error occurred while processing your request"))
           },
@@ -106,7 +107,7 @@ const Dashboard = () => {
           driverObj.destroy();
           setIsTourActive(false);
           const response = introTourComplete();
-          response.then((response)=>(
+          response.then((response) => (
             response?.error && showErrorToast(response.error.data.errors[0]))
           ).catch(err => showErrorToast("An error occurred while processing your request"))
         };
@@ -117,7 +118,7 @@ const Dashboard = () => {
   if (isError) {
     return <FallbackComponent />;
   }
-  if (isAuthLoading || isLoading) {
+  if (isLoading) {
     return <FullscreenLoader />;
   }
 
@@ -135,15 +136,14 @@ const Dashboard = () => {
             title="Dashboard"
             isTourActive={isTourActive}
           />
-          {/* Subscription Expiry Notice */}
-          {/* <SubscriptionExpiryNotice /> */}
-
 
           <Box className="layout">
             <Grid container>
               <Grid item xs={12}>
                 {mobile && <SharedHeader content="Dashboard" />}
                 <Box className="mt-30 mb-18">
+                  {/* Subscription Expiry Notice */}
+                  <SubscriptionExpiryNotice mt={5} />
                   <Heading title="Overview" />
                 </Box>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>

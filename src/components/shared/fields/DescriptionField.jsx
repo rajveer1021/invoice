@@ -27,15 +27,16 @@ export default function DescriptionField({
 }) {
   const { setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext();
-
+ 
   const handleChange = (event) => {
     const { value } = event.target;
     setFieldValue(name, value);
     setFieldTouched(name, true, false);
     setFieldValue(
       line_type_name,
-      selectedOption ? selectedOption.toLowerCase() : "item"
+      selectedOption  ? selectedOption.toLowerCase() : "item"
     );
+  
   };
 
   return (

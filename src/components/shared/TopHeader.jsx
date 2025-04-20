@@ -5,7 +5,7 @@ import MobileSideHeader from "./../internal/layout/side-header/MobileSideHeader"
 import SelectAction from "./../internal/drop-down/SelectAction";
 import { getUserDataFromLocalStorage } from "../../services/Utils";
 import { CustomButton } from "./CustomButton";
-import { useSelector } from "react-redux";
+import { useInvoiceQuota } from "../../hooks/API/useInvoiceQuota";
 
 const TopHeader = ({
   clientUrl,
@@ -38,12 +38,10 @@ const TopHeader = ({
 
   const userData = getUserDataFromLocalStorage();
 
-  const subscription = useSelector((state) => state.subscription);
+  const { canCreateInvoice, canCreateClient, isLoading, error } = useInvoiceQuota(true);
 
-  const isInvoiceQuotaExceeded =
-    subscription?.invoiceQuota?.used >= subscription?.invoiceQuota?.total;
-  const isClientQuotaExceeded =
-    subscription?.clientQuota?.used >= subscription?.clientQuota?.total;
+  const isInvoiceQuotaExceeded = !canCreateInvoice;
+  const isClientQuotaExceeded = !canCreateClient;
 
   const RemoveDupilcateData = () => localStorage.removeItem("duplicateData");
 
@@ -68,7 +66,7 @@ const TopHeader = ({
               startIcon={<AddIcon />}
               id={"createClient"}
               url={clientUrl}
-              disabled={isTourActive || isClientQuotaExceeded} 
+              disabled={isTourActive || isClientQuotaExceeded || isLoading || !!error}
             />
           )}
           {InvoiceUrl && (
@@ -78,7 +76,7 @@ const TopHeader = ({
               startIcon={<AddIcon />}
               id="createInvoice"
               url={InvoiceUrl}
-              disabled={isTourActive || isInvoiceQuotaExceeded} 
+              disabled={isTourActive || isInvoiceQuotaExceeded || isLoading || !!error}
               handleClick={RemoveDupilcateData}
             />
           )}

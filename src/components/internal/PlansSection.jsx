@@ -12,8 +12,6 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import PlanCard from './PlanCard';
-import { useDispatch } from 'react-redux';
-import { setSelectedPlan, setBillingCycle } from '../../features/subscription/subscriptionSlice';
 import { useLazyGetSubscriptionPlansQuery } from '../../services/Api';
 import { THEME_COLORS } from '../../constant/index';
 import FallbackComponent from '../shared/FallbackComponent';
@@ -64,11 +62,8 @@ const PlansSection = ({ subscription }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [getPlans, { data, isLoading, error }] = useLazyGetSubscriptionPlansQuery();
   const [formattedPlans, setFormattedPlans] = useState([]);
-
-  const PLAN_ORDER = ['trial', 'basic', 'professional', 'enterprise'];
 
   useEffect(() => {
     getPlans();
@@ -114,34 +109,30 @@ const PlansSection = ({ subscription }) => {
         features.push('Multiple Currency Support');
       }
 
+      // Determine button text based on current subscription
       let buttonText = planType === 'trial' ? 'Start Free Trial' : `Subscribe to ${monthlyPlan.name}`;
+      let buttonVariant = 'contained';
       let disabled = false;
 
-      if (subscription) {
-        const isCurrentType = planType === subscription.planType;
-        const isCurrentInterval = (isYearly && subscription.billingCycle === 'year') ||
-                                 (!isYearly && subscription.billingCycle === 'month');
-
-        if (isCurrentType && isCurrentInterval) {
-          buttonText = 'Current Plan';
-          disabled = true;
-        } else if (isCurrentType && !isCurrentInterval) {
-          buttonText = isYearly ? 'Switch to Yearly Billing' : 'Switch to Monthly Billing';
-        } else {
-          const currentIndex = PLAN_ORDER.indexOf(subscription.planType);
-          const planIndex = PLAN_ORDER.indexOf(planType);
-          if (currentIndex !== -1 && planIndex !== -1) {
-            if (planIndex > currentIndex) {
-              buttonText = `Upgrade to ${monthlyPlan.name}`;
-            } else if (planIndex < currentIndex) {
-              buttonText = `Downgrade to ${monthlyPlan.name}`;
-            }
-          }
+      if (subscription && subscription.planType === planType && 
+          ((isYearly && subscription.billingCycle === 'year') || (!isYearly && subscription.billingCycle === 'month'))) {
+        buttonText = 'Current Plan';
+        buttonVariant = 'outlined';
+        disabled = true;
+      } else if (subscription) {
+        const currentPlanPrice = subscription.price;
+        const planPrice = isYearly && yearlyPlan ? yearlyPlan.price : monthlyPlan.price;
+        
+        if (currentPlanPrice < planPrice) {
+          buttonText = 'Upgrade Plan';
+        } else if (currentPlanPrice > planPrice) {
+          buttonText = `Downgrade to ${monthlyPlan.name}`;
         }
       }
 
       return {
         id: planType,
+        apiPlanId: isYearly && yearlyPlan ? yearlyPlan.id : monthlyPlan.id,
         name: monthlyPlan.name,
         tagline: planType === 'trial' ? 'Trial' :
           planType === 'professional' ? 'Most Popular' :
@@ -151,16 +142,16 @@ const PlansSection = ({ subscription }) => {
         color,
         colorAccent,
         buttonText,
-        buttonVariant: 'contained',
+        buttonVariant,
         subscribed: monthlyPlan.is_subscribed,
         highlight,
         features,
-        disabled 
+        disabled
       };
     }).filter(Boolean);
 
     setFormattedPlans(transformedPlans);
-  }, [data, subscription, isYearly]);
+  }, [data, isYearly, subscription]);
 
   const handleBillingToggle = () => {
     setIsYearly(prev => !prev);
@@ -168,21 +159,8 @@ const PlansSection = ({ subscription }) => {
 
   const handleSelectPlan = (planId) => {
     const selectedPlan = formattedPlans.find(plan => plan.id === planId);
-
-    if (selectedPlan && data?.data) {
-      const apiPlan = data.data.find(p =>
-        p.plan_type === planId &&
-        p.interval === (isYearly ? 'year' : 'month')
-      );
-
-      dispatch(setSelectedPlan({
-        ...selectedPlan,
-        apiPlanId: apiPlan?.id,
-        price: apiPlan?.price,
-        interval: apiPlan?.interval
-      }));
-      dispatch(setBillingCycle(isYearly ? 'yearly' : 'monthly'));
-      navigate("/checkout");
+    if (selectedPlan && !selectedPlan.disabled) {
+      navigate(`/checkout?planId=${selectedPlan.apiPlanId}&billingCycle=${isYearly ? 'yearly' : 'monthly'}`);
     }
   };
 
@@ -217,28 +195,18 @@ const PlansSection = ({ subscription }) => {
         <BillingToggle isYearly={isYearly} onChange={handleBillingToggle} />
       </Box>
 
-      {isLoading ? (
-        <Typography align="center">Loading plans...</Typography>
-      ) : error ? (
-        <Typography align="center" color="error">
-          Failed to load plans. Please try again later.
-        </Typography>
-      ) : !data?.data || formattedPlans.length === 0 ? (
-        <Typography align="center">No plans available at this time.</Typography>
-      ) : (
-        <Grid container spacing={3} justifyContent="center" marginTop={5}>
-          {formattedPlans.map((plan) => (
-            <Grid item xs={12} sm={6} lg={3} key={plan.id}>
-              <PlanCard
-                plan={plan}
-                isYearly={isYearly}
-                isMobile={isMobile}
-                onSelect={handleSelectPlan}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      <Grid container spacing={3} justifyContent="center" marginTop={5}>
+        {formattedPlans.map((plan) => (
+          <Grid item xs={12} sm={6} lg={3} key={plan.id}>
+            <PlanCard
+              plan={plan}
+              isYearly={isYearly}
+              isMobile={isMobile}
+              onSelect={handleSelectPlan}
+            />
+          </Grid>
+        ))}
+      </Grid>
     </Container>
   );
 };
